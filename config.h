@@ -80,9 +80,10 @@
 //#define SHIM_17 ht_e32_h7
 //#define SHIM_18 ht_e64_del
 //#define SHIM_19 ht_e64_h7
-//#define SHIM_20 eht_e16_h7
+#define SHIM_20 eht_e16_h7
 //#define SHIM_21 ht_e32_h7l
 //#define SHIM_22 ht_e25h7l_del
 #define SHIM_23 ht_h7_e32l
 #define SHIM_24 ht_h7simd
 #define SHIM_25 ht_h7simd2
+#define SHIM_26 eht_simd
