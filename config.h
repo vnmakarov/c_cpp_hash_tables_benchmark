@@ -61,10 +61,10 @@
 // #define BLUEPRINT_16
 
 // Shim slots.
-#define SHIM_1 absl_flat_hash_map
-#define SHIM_2 ankerl_unordered_dense
+//#define SHIM_1 absl_flat_hash_map
+//#define SHIM_2 ankerl_unordered_dense
 #define SHIM_3 boost_unordered_flat_map
-#define SHIM_4 emilib2O // emilib2 does not automatically respect MAX_LOAD_FACTOR (the header must be modified).
+//#define SHIM_4 emilib2O // emilib2 does not automatically respect MAX_LOAD_FACTOR (the header must be modified).
 //#define SHIM_5 ska_bytell_hash_map
 //#define SHIM_6 std_unordered_map
 //#define SHIM_7 tsl_robin_map
@@ -72,16 +72,17 @@
 //#define SHIM_9 khash
 //#define SHIM_10 mlib_dict
 //#define SHIM_11 mlib_dict_oa
-#define SHIM_12 stb_ds_hm_sh // stb_ds does not automatically respect MAX_LOAD_FACTOR (the header must be modified).
+//#define SHIM_12 stb_ds_hm_sh // stb_ds does not automatically respect MAX_LOAD_FACTOR (the header must be modified).
 //#define SHIM_13 stc_hmap
 //#define SHIM_14 uthash
 //#define SHIM_15 verstable
-#define SHIM_16 ht_e48x16_del
-#define SHIM_17 ht_e32_h7
-#define SHIM_18 ht_e64_del
-#define SHIM_19 ht_e64_h7
-#define SHIM_20 eht_e16_h7
-#define SHIM_21 ht_e32_h7l
-#define SHIM_22 ht_e25h7l_del
+//#define SHIM_16 ht_e48x16_del
+//#define SHIM_17 ht_e32_h7
+//#define SHIM_18 ht_e64_del
+//#define SHIM_19 ht_e64_h7
+//#define SHIM_20 eht_e16_h7
+//#define SHIM_21 ht_e32_h7l
+//#define SHIM_22 ht_e25h7l_del
 #define SHIM_23 ht_h7_e32l
 #define SHIM_24 ht_h7simd
+#define SHIM_25 ht_h7simd2

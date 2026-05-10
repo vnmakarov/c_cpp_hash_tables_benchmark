@@ -1421,6 +1421,59 @@ static_assert( check_shim_against_blueprint< SHIM_24, BLUEPRINT_16 > );
 #endif
 #endif
 
+#ifdef SHIM_25
+#include STRINGIFY( shims/SHIM_25/shim.h )
+static_assert( check_shim< SHIM_25 > );
+#ifdef BLUEPRINT_1
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_1 > );
+#endif
+#ifdef BLUEPRINT_2
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_2 > );
+#endif
+#ifdef BLUEPRINT_3
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_3 > );
+#endif
+#ifdef BLUEPRINT_4
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_4 > );
+#endif
+#ifdef BLUEPRINT_5
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_5 > );
+#endif
+#ifdef BLUEPRINT_6
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_6 > );
+#endif
+#ifdef BLUEPRINT_7
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_7 > );
+#endif
+#ifdef BLUEPRINT_8
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_8 > );
+#endif
+#ifdef BLUEPRINT_9
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_9 > );
+#endif
+#ifdef BLUEPRINT_10
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_10 > );
+#endif
+#ifdef BLUEPRINT_11
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_11 > );
+#endif
+#ifdef BLUEPRINT_12
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_12 > );
+#endif
+#ifdef BLUEPRINT_13
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_13 > );
+#endif
+#ifdef BLUEPRINT_14
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_14 > );
+#endif
+#ifdef BLUEPRINT_15
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_15 > );
+#endif
+#ifdef BLUEPRINT_16
+static_assert( check_shim_against_blueprint< SHIM_25, BLUEPRINT_16 > );
+#endif
+#endif
+
 // Random number generator.
 std::default_random_engine random_number_generator( std::chrono::steady_clock::now().time_since_epoch().count() );
 
@@ -2144,6 +2197,9 @@ template< typename blueprint, benchmark_ids benchmark_id > void graph_out( std::
   #ifdef SHIM_24
   graph_shim_styling_out< SHIM_24, blueprint, benchmark_id >( file );
   #endif
+  #ifdef SHIM_25
+  graph_shim_styling_out< SHIM_25, blueprint, benchmark_id >( file );
+  #endif
 
   // Output the ideal graph y-axis scale for each plot.
   // This requires outputting the scale styling in increasing order so that the graph's scale is ultimately determined
@@ -2298,6 +2354,12 @@ template< typename blueprint, benchmark_ids benchmark_id > void graph_out( std::
     max_adjusted_average_result< SHIM_24, blueprint, benchmark_id >()
   );
   #endif
+  #ifdef SHIM_25
+  max_results.emplace_back(
+    plot_id< SHIM_25, blueprint, benchmark_id >(),
+    max_adjusted_average_result< SHIM_25, blueprint, benchmark_id >()
+  );
+  #endif
   max_results.emplace_back(
   );
 
@@ -2403,6 +2465,9 @@ template< typename blueprint, benchmark_ids benchmark_id > void graph_out( std::
   #endif
   #ifdef SHIM_24
   graph_shim_label_out< SHIM_24, blueprint, benchmark_id >( file );
+  #endif
+  #ifdef SHIM_25
+  graph_shim_label_out< SHIM_25, blueprint, benchmark_id >( file );
   #endif
 
   // Output the actual graph.
@@ -2510,6 +2575,9 @@ template< typename blueprint, benchmark_ids benchmark_id > void graph_out( std::
   #endif
   #ifdef SHIM_24
   graph_shim_plot_out< SHIM_24, blueprint, benchmark_id >( file );
+  #endif
+  #ifdef SHIM_25
+  graph_shim_plot_out< SHIM_25, blueprint, benchmark_id >( file );
   #endif
 
   // Finish up.
@@ -2750,6 +2818,9 @@ double heatmap_lowest_total()
   #ifdef SHIM_24
   lowest_total = std::min( total_adjusted_average_result< SHIM_24, blueprint, benchmark_id >(), lowest_total );
   #endif
+  #ifdef SHIM_25
+  lowest_total = std::min( total_adjusted_average_result< SHIM_25, blueprint, benchmark_id >(), lowest_total );
+  #endif
 
   return lowest_total;
 }
@@ -2839,6 +2910,9 @@ void heatmap_row_out( std::ofstream &file, unsigned int row, double cell_width )
   #endif
   #ifdef SHIM_24
   heatmap_cell_out< SHIM_24, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
+  #endif
+  #ifdef SHIM_25
+  heatmap_cell_out< SHIM_25, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
 }
 
@@ -3062,7 +3136,7 @@ void heatmap_summary_row_out( std::ofstream &file, unsigned int row, double cell
   double center_y = 44 + ( row + 0.5 ) * 32 + 1;
   file << "  <text x='7' y='" << center_y << "'>" << label << "</text>\n";
 
-  constexpr int MAX_SHIMS = 24;
+  constexpr int MAX_SHIMS = 25;
   double values[ MAX_SHIMS ];
   int shim_count = 0;
 
@@ -3145,6 +3219,9 @@ void heatmap_summary_row_out( std::ofstream &file, unsigned int row, double cell
   #ifdef SHIM_24
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_24 >( s, l, c ); } );
   #endif
+  #ifdef SHIM_25
+  collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_25 >( s, l, c ); } );
+  #endif
 
   double best = *std::min_element( values, values + shim_count );
   for( int i = 0; i < shim_count; ++i )
@@ -3226,6 +3303,9 @@ void heatmap_out( std::ofstream &file )
   ++cell_cols;
   #endif
   #ifdef SHIM_24
+  ++cell_cols;
+  #endif
+  #ifdef SHIM_25
   ++cell_cols;
   #endif
   ++cell_cols;
@@ -3398,6 +3478,9 @@ void heatmap_out( std::ofstream &file )
   #endif
   #ifdef SHIM_24
   heatmap_shim_label_out< SHIM_24 >( file, col++, cell_width );
+  #endif
+  #ifdef SHIM_25
+  heatmap_shim_label_out< SHIM_25 >( file, col++, cell_width );
   #endif
 
   // Output rows.
@@ -3592,6 +3675,9 @@ template< typename blueprint, benchmark_ids benchmark_id > void csv_blueprint_ou
   #ifdef SHIM_24
   csv_shim_out< SHIM_24, blueprint, benchmark_id >( file );
   #endif
+  #ifdef SHIM_25
+  csv_shim_out< SHIM_25, blueprint, benchmark_id >( file );
+  #endif
 }
 
 template< benchmark_ids benchmark_id > void csv_benchmark_out( std::ofstream &file )
@@ -3759,6 +3845,9 @@ int main()
     #endif
     #ifdef SHIM_24
     benchmarks< SHIM_24 >( run );
+    #endif
+    #ifdef SHIM_25
+    benchmarks< SHIM_25 >( run );
     #endif
   }
 
