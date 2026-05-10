@@ -90,6 +90,7 @@ struct ebin_simd_t {
   eht_simd_hash_t mask;
   unsigned int els_start, els_bound;
   El *els;
+  char *deleted;
   unsigned char *h7;
   eht_simd_ind_t *entries;
   unsigned int groups_mask;
@@ -117,6 +118,8 @@ struct eht_simd_t {
     auto &b = htab->bins[ind];
     b.els_start = b.els_bound = 0;
     b.els = (El *) std::malloc (size * sizeof (El));
+    unsigned int del_bytes = (size + 7) / 8;
+    b.deleted = (char *) std::calloc (del_bytes, 1);
     unsigned int entries_size = 2 * size;
     b.h7 = (unsigned char *) std::aligned_alloc (EHT_SIMD_GROUP_SIZE, entries_size);
     std::memset (b.h7, EHT_SIMD_EMPTY_H7, entries_size);
@@ -127,6 +130,7 @@ struct eht_simd_t {
 
   static void destroy_bin (ebin_simd_t<El> &b) {
     std::free (b.els);
+    std::free (b.deleted);
     std::free (b.h7);
     std::free (b.entries);
   }
@@ -189,6 +193,7 @@ struct eht_simd_t {
             *res = &bin.els[el_ind];
           } else {
             htab->els_num--;
+            bin.deleted[el_ind / 8] |= 1 << (el_ind % 8);
             group_h7[bit] = EHT_SIMD_DELETED_H7;
           }
           return true;
@@ -253,6 +258,7 @@ struct eht_simd_t {
       unsigned int els_num = htab->els_num;
       bool old_added = false, new_added = false;
       for (unsigned int i = start; i < bound; i++) {
+        if (bin.deleted[i / 8] & (1 << (i % 8))) continue;
         eht_simd_hash_t hash = hash_fn (bin.els[i]);
         if (hash == 0) hash = 1;
         bool is_old = (hash & split_mask) == 0;
@@ -296,6 +302,9 @@ struct eht_simd_t {
       } else {
         auto &b = htab->bins[bin_ind];
         b.els = (El *) std::realloc (b.els, els_size * sizeof (El));
+        unsigned int del_bytes = (els_size + 7) / 8;
+        b.deleted = (char *) std::realloc (b.deleted, del_bytes);
+        std::memset (b.deleted, 0, del_bytes);
         b.h7 = (unsigned char *) std::realloc (b.h7, entries_size);
         std::memset (b.h7, EHT_SIMD_EMPTY_H7, entries_size);
         b.entries = (eht_simd_ind_t *) std::realloc (b.entries,
@@ -305,6 +314,7 @@ struct eht_simd_t {
         b.els_start = b.els_bound = 0;
         htab->els_num = 0;
         for (unsigned int i = start; i < bound; i++) {
+          if (b.deleted[i / 8] & (1 << (i % 8))) continue;
           eht_simd_hash_t hash2 = hash_fn (b.els[i]);
           if (hash2 == 0) hash2 = 1;
           El *r;

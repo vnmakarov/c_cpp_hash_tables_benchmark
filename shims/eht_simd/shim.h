@@ -32,8 +32,7 @@ template< typename blueprint > struct eht_simd
   struct itr_type
   {
     unsigned int bin_idx;
-    unsigned int group_idx;
-    unsigned int slot_idx;
+    unsigned int el_idx;
     entry *entry_ptr;
   };
 
@@ -49,18 +48,18 @@ template< typename blueprint > struct eht_simd
     while( itr.bin_idx < table.bins_num )
     {
       auto &bin = table.bins[itr.bin_idx];
-      unsigned int entries_size = ( bin.groups_mask + 1 ) * EHT_SIMD_GROUP_SIZE;
-      while( itr.slot_idx < entries_size )
+      while( itr.el_idx < bin.els_bound )
       {
-        if( bin.h7[itr.slot_idx] < EHT_SIMD_EMPTY_H7 )
+        if( !( bin.deleted[itr.el_idx / 8] & ( 1 << ( itr.el_idx % 8 ) ) ) )
         {
-          itr.entry_ptr = &bin.els[bin.entries[itr.slot_idx]];
+          itr.entry_ptr = &bin.els[itr.el_idx];
           return;
         }
-        ++itr.slot_idx;
+        ++itr.el_idx;
       }
       ++itr.bin_idx;
-      itr.slot_idx = 0;
+      if( itr.bin_idx < table.bins_num )
+        itr.el_idx = table.bins[itr.bin_idx].els_start;
     }
     itr.entry_ptr = nullptr;
   }
@@ -74,7 +73,7 @@ template< typename blueprint > struct eht_simd
     itr_type itr;
     itr.entry_ptr = found ? res : nullptr;
     itr.bin_idx = 0;
-    itr.slot_idx = 0;
+    itr.el_idx = 0;
     return itr;
   }
 
@@ -101,7 +100,7 @@ template< typename blueprint > struct eht_simd
   {
     itr_type itr;
     itr.bin_idx = 0;
-    itr.slot_idx = 0;
+    itr.el_idx = table.bins_num > 0 ? table.bins[0].els_start : 0;
     itr.entry_ptr = nullptr;
     advance_itr( table, itr );
     return itr;
@@ -114,7 +113,7 @@ template< typename blueprint > struct eht_simd
 
   static void increment_itr( table_type &table, itr_type &itr )
   {
-    ++itr.slot_idx;
+    ++itr.el_idx;
     advance_itr( table, itr );
   }
 
