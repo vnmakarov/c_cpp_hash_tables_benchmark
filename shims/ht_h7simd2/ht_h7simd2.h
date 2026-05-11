@@ -24,6 +24,8 @@ typedef size_t ht_h7simd2_hash_t;
 
 static constexpr unsigned char HT_H7SIMD2_EMPTY_H7 = 0x80;
 static constexpr unsigned char HT_H7SIMD2_DELETED_H7 = 0xfe;
+static constexpr unsigned int HT_H7SIMD2_LF_FACTOR = 3;
+static constexpr unsigned int HT_H7SIMD2_LF_DIVISOR = 4;
 
 enum ht_h7simd2_action { HT_H7SIMD2_FIND, HT_H7SIMD2_INSERT, HT_H7SIMD2_REPLACE, HT_H7SIMD2_DELETE };
 
@@ -96,15 +98,14 @@ struct ht_h7simd2_t {
   hbin_h7simd2_t<El> bin;
 
   static void create (ht_h7simd2_t *htab, ht_h7simd2_size_t min_size) {
-    ht_h7simd2_size_t size;
-    for (size = 2; min_size > size; size *= 2);
-    if (size < HT_H7SIMD2_GROUP_SIZE) size = HT_H7SIMD2_GROUP_SIZE;
+    ht_h7simd2_size_t entries_size = HT_H7SIMD2_GROUP_SIZE;
+    while (entries_size * HT_H7SIMD2_LF_FACTOR / HT_H7SIMD2_LF_DIVISOR < min_size) entries_size *= 2;
+    ht_h7simd2_size_t els_size = entries_size * HT_H7SIMD2_LF_FACTOR / HT_H7SIMD2_LF_DIVISOR;
     htab->els_num = 0;
     auto &b = htab->bin;
     b.els_start = b.els_bound = 0;
-    ht_h7simd2_size_t entries_size = 2 * size;
-    b.els = (El *) std::malloc (size * sizeof (El));
-    ht_h7simd2_size_t del_bytes = (size + 7) / 8;
+    b.els = (El *) std::malloc (els_size * sizeof (El));
+    ht_h7simd2_size_t del_bytes = (els_size + 7) / 8;
     b.deleted = (char *) std::calloc (del_bytes, 1);
     b.h7 = (unsigned char *) std::aligned_alloc (HT_H7SIMD2_GROUP_SIZE, entries_size);
     std::memset (b.h7, HT_H7SIMD2_EMPTY_H7, entries_size);
@@ -187,12 +188,12 @@ struct ht_h7simd2_t {
 
   __attribute__((always_inline))
   static bool do_ (ht_h7simd2_t *htab, El &el, enum ht_h7simd2_action action, El **res) {
-    ht_h7simd2_size_t els_size = (htab->bin.groups_mask + 1) * HT_H7SIMD2_GROUP_SIZE / 2;
-    if (action != HT_H7SIMD2_DELETE && htab->bin.els_bound >= els_size) {
-      ht_h7simd2_size_t entries_size = (htab->bin.groups_mask + 1) * HT_H7SIMD2_GROUP_SIZE;
-      if (2 * htab->els_num >= entries_size) {
+    ht_h7simd2_size_t entries_size = (htab->bin.groups_mask + 1) * HT_H7SIMD2_GROUP_SIZE;
+    ht_h7simd2_size_t els_size = entries_size * HT_H7SIMD2_LF_FACTOR / HT_H7SIMD2_LF_DIVISOR;
+    if (action != HT_H7SIMD2_DELETE && __builtin_expect(htab->bin.els_bound >= els_size, 0)) {
+      if (2 * HT_H7SIMD2_LF_DIVISOR * htab->els_num >= HT_H7SIMD2_LF_FACTOR * entries_size) {
         entries_size *= 2;
-        els_size *= 2;
+        els_size = entries_size * HT_H7SIMD2_LF_FACTOR / HT_H7SIMD2_LF_DIVISOR;
       }
       hbin_h7simd2_t<El> resize_bin;
       resize_bin.els = (El *) std::malloc (els_size * sizeof (El));
@@ -219,7 +220,7 @@ struct ht_h7simd2_t {
   }
 
   static ht_h7simd2_size_t size (ht_h7simd2_t *htab) {
-    return (htab->bin.groups_mask + 1) * HT_H7SIMD2_GROUP_SIZE / 2;
+    return (htab->bin.groups_mask + 1) * HT_H7SIMD2_GROUP_SIZE * HT_H7SIMD2_LF_FACTOR / HT_H7SIMD2_LF_DIVISOR;
   }
 };
 
