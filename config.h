@@ -85,7 +85,7 @@
 #define SHIM_22 ht_e25h7l_del
 #define SHIM_23 ht_h7_e32l
 #define SHIM_24 ht_h7simd
-#define SHIM_25 ht_h7simd2
+#define SHIM_25 ht_simd2_nm
 #define SHIM_26 eht_simd
 #define SHIM_27 ht_simd_nm
-#define SHIM_28 ht_simd2_nm
+#define SHIM_28 ht_h7simd2
