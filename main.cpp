@@ -2197,8 +2197,8 @@ template< typename blueprint, benchmark_ids benchmark_id > void graph_out( std::
 {
   // Output the general styling.
   file <<
-    "<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1002px'"
-       " viewBox='0 0 1002 618' style='background-color: white;'>\n"
+    "<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1202px'"
+       " viewBox='0 0 1202 618' style='background-color: white;'>\n"
     "  <style>\n"
     "  .outerDiv\n"
     "  {\n"
@@ -2851,7 +2851,9 @@ template< benchmark_ids benchmark_id > void graphs_out( std::ofstream &file )
 template< template< typename > typename shim >
 void heatmap_shim_label_out( std::ofstream &file, unsigned int col, double cell_width )
 {
-  file << "  <text x='" << 200 + ( col + 0.5 ) * cell_width << "' y='37' text-anchor='middle'>" << shim< void >::label
+  double cx = 240 + ( col + 0.5 ) * cell_width;
+  file << "  <text x='" << cx << "' y='137' text-anchor='end' "
+       <<     "transform='rotate(-45 " << cx << " 37)'>" << shim< void >::label
        << "</text>\n"
   ;
 }
@@ -2881,8 +2883,8 @@ void heatmap_cell_out( std::ofstream &file, unsigned int row, unsigned int col, 
 {
   double normalized_total = total_adjusted_average_result<shim, blueprint, benchmark_id>() / lowest_total;
 
-  double x = 200 + col * cell_width;
-  double y = 44 + row * 32;
+  double x = 240 + col * cell_width;
+  double y = 140 + row * 32;
 
   static const uint8_t colors [ 256 ][ 3 ] =
   {
@@ -3045,7 +3047,7 @@ void heatmap_row_out( std::ofstream &file, unsigned int row, double cell_width )
 {
   double lowest_total = heatmap_lowest_total< blueprint, benchmark_id >();
 
-  double center_y = 44 + ( row + 0.5 ) * 32 + 1;
+  double center_y = 140 + ( row + 0.5 ) * 32 + 1;
 
   file << "  <text x='7' y='" << center_y - 7 << "'>" << blueprint::label << ":</text>\n"
           "  <text x='7' y='" << center_y + 7 << "'>" << benchmark_alt_names[ benchmark_id ] << "</text>\n"
@@ -3289,8 +3291,8 @@ void heatmap_collect_all( double &sum, double &log_sum, int &count )
 void heatmap_summary_cell( std::ofstream &file, unsigned int row, unsigned int col, double cell_width,
                            double value, double best_value )
 {
-  double x = 200 + col * cell_width;
-  double y = 44 + row * 32;
+  double x = 240 + col * cell_width;
+  double y = 140 + row * 32;
 
   double ratio = value / best_value;
   uint8_t color = std::min( ( ratio - 1.0 ) / 9.0, 1.0 ) * 255;
@@ -3356,7 +3358,7 @@ void heatmap_summary_cell( std::ofstream &file, unsigned int row, unsigned int c
 // Output a summary row (average or geomean) for all shims.
 void heatmap_summary_row_out( std::ofstream &file, unsigned int row, double cell_width, const char *label, bool geomean )
 {
-  double center_y = 44 + ( row + 0.5 ) * 32 + 1;
+  double center_y = 140 + ( row + 0.5 ) * 32 + 1;
   file << "  <text x='7' y='" << center_y << "'>" << label << "</text>\n";
 
   constexpr int MAX_SHIMS = 28;
@@ -3543,8 +3545,8 @@ void memory_heatmap_cell_out( std::ofstream &file, unsigned int row, unsigned in
   double normalized = (double) mem / (double) lowest;
   double bytes_per_el = (double) mem / KEY_COUNT;
 
-  double x = 200 + col * cell_width;
-  double y = 44 + row * 32;
+  double x = 240 + col * cell_width;
+  double y = 140 + row * 32;
 
   static const uint8_t colors [ 256 ][ 3 ] =
   {
@@ -3697,8 +3699,8 @@ void memory_heatmap_row_out( std::ofstream &file, unsigned int row, double cell_
   lowest = std::min( memory_result< SHIM_28, blueprint >(), lowest );
   #endif
 
-  double center_y = 44 + ( row + 0.5 ) * 32 + 1;
-  file << "  <text x='7' y='" << center_y << "'>" << blueprint::label << ": Memory</text>\n";
+  double center_y = 140 + ( row + 0.5 ) * 32 + 1;
+  file << "  <text x='7' y='" << center_y << "'>" << blueprint::label << "</text>\n";
 
   int col = 0;
 
@@ -3786,6 +3788,63 @@ void memory_heatmap_row_out( std::ofstream &file, unsigned int row, double cell_
   #ifdef SHIM_28
   memory_heatmap_cell_out< SHIM_28, blueprint >( file, row, col++, cell_width, lowest );
   #endif
+}
+
+// Collect average bytes per element for one shim across all blueprints.
+template< template< typename > typename shim >
+double memory_average_bytes_per_el()
+{
+  double sum = 0;
+  int count = 0;
+  #ifdef BLUEPRINT_1
+  sum += (double) memory_result< shim, BLUEPRINT_1 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_2
+  sum += (double) memory_result< shim, BLUEPRINT_2 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_3
+  sum += (double) memory_result< shim, BLUEPRINT_3 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_4
+  sum += (double) memory_result< shim, BLUEPRINT_4 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_5
+  sum += (double) memory_result< shim, BLUEPRINT_5 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_6
+  sum += (double) memory_result< shim, BLUEPRINT_6 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_7
+  sum += (double) memory_result< shim, BLUEPRINT_7 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_8
+  sum += (double) memory_result< shim, BLUEPRINT_8 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_9
+  sum += (double) memory_result< shim, BLUEPRINT_9 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_10
+  sum += (double) memory_result< shim, BLUEPRINT_10 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_11
+  sum += (double) memory_result< shim, BLUEPRINT_11 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_12
+  sum += (double) memory_result< shim, BLUEPRINT_12 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_13
+  sum += (double) memory_result< shim, BLUEPRINT_13 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_14
+  sum += (double) memory_result< shim, BLUEPRINT_14 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_15
+  sum += (double) memory_result< shim, BLUEPRINT_15 >() / KEY_COUNT; ++count;
+  #endif
+  #ifdef BLUEPRINT_16
+  sum += (double) memory_result< shim, BLUEPRINT_16 >() / KEY_COUNT; ++count;
+  #endif
+  return count > 0 ? sum / count : 0;
 }
 
 // Memory heatmap output.
@@ -3877,7 +3936,7 @@ void memory_heatmap_out( std::ofstream &file )
   ++cell_cols;
   #endif
 
-  double cell_width = 797 / (double)cell_cols;
+  double cell_width = 957 / (double)cell_cols;
 
   unsigned int cell_rows = 0;
   #ifdef BLUEPRINT_1
@@ -3929,8 +3988,10 @@ void memory_heatmap_out( std::ofstream &file )
   ++cell_rows;
   #endif
 
-  file << "<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1002px' "
-            "viewBox='0 0 1002 " << 44 + cell_rows * 32 + 5 << "' style='background-color: white;'>\n"
+  cell_rows += 1;
+
+  file << "<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1202px' "
+            "viewBox='0 0 1202 " << 140 + cell_rows * 32 + 5 << "' style='background-color: white;'>\n"
           "  <style>\n"
           "  text\n"
           "  {\n"
@@ -3939,7 +4000,7 @@ void memory_heatmap_out( std::ofstream &file )
           "    dominant-baseline: middle;\n"
           "  }\n"
           "  </style>\n"
-          "  <text x='501' y='16' style='font-size: 14px;' text-anchor='middle'>Memory per element in bytes "
+          "  <text x='601' y='16' style='font-size: 14px;' text-anchor='middle'>Memory per element in bytes "
                "(lower/lighter is better)</text>\n"
   ;
 
@@ -4079,6 +4140,108 @@ void memory_heatmap_out( std::ofstream &file )
   memory_heatmap_row_out< BLUEPRINT_16 >( file, row++, cell_width );
   #endif
 
+  // Average row.
+  {
+    double center_y = 140 + ( row + 0.5 ) * 32 + 1;
+    file << "  <text x='7' y='" << center_y << "'>Average</text>\n";
+
+    constexpr int MAX_SHIMS = 28;
+    double values[ MAX_SHIMS ];
+    int shim_count = 0;
+
+    auto collect_shim = [&]( auto fn ) { values[ shim_count++ ] = fn(); };
+
+    #ifdef SHIM_1
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_1 >(); } );
+    #endif
+    #ifdef SHIM_2
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_2 >(); } );
+    #endif
+    #ifdef SHIM_3
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_3 >(); } );
+    #endif
+    #ifdef SHIM_4
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_4 >(); } );
+    #endif
+    #ifdef SHIM_5
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_5 >(); } );
+    #endif
+    #ifdef SHIM_6
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_6 >(); } );
+    #endif
+    #ifdef SHIM_7
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_7 >(); } );
+    #endif
+    #ifdef SHIM_8
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_8 >(); } );
+    #endif
+    #ifdef SHIM_9
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_9 >(); } );
+    #endif
+    #ifdef SHIM_10
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_10 >(); } );
+    #endif
+    #ifdef SHIM_11
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_11 >(); } );
+    #endif
+    #ifdef SHIM_12
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_12 >(); } );
+    #endif
+    #ifdef SHIM_13
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_13 >(); } );
+    #endif
+    #ifdef SHIM_14
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_14 >(); } );
+    #endif
+    #ifdef SHIM_15
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_15 >(); } );
+    #endif
+    #ifdef SHIM_16
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_16 >(); } );
+    #endif
+    #ifdef SHIM_17
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_17 >(); } );
+    #endif
+    #ifdef SHIM_18
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_18 >(); } );
+    #endif
+    #ifdef SHIM_19
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_19 >(); } );
+    #endif
+    #ifdef SHIM_20
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_20 >(); } );
+    #endif
+    #ifdef SHIM_21
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_21 >(); } );
+    #endif
+    #ifdef SHIM_22
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_22 >(); } );
+    #endif
+    #ifdef SHIM_23
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_23 >(); } );
+    #endif
+    #ifdef SHIM_24
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_24 >(); } );
+    #endif
+    #ifdef SHIM_25
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_25 >(); } );
+    #endif
+    #ifdef SHIM_26
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_26 >(); } );
+    #endif
+    #ifdef SHIM_27
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_27 >(); } );
+    #endif
+    #ifdef SHIM_28
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_28 >(); } );
+    #endif
+
+    double best = *std::min_element( values, values + shim_count );
+    for( int i = 0; i < shim_count; ++i )
+      heatmap_summary_cell( file, row, i, cell_width, values[ i ], best );
+    row++;
+  }
+
   file << "</svg>\n";
 }
 
@@ -4173,7 +4336,7 @@ void heatmap_out( std::ofstream &file )
   #endif
   ++cell_cols;
 
-  double cell_width = 797 / (double)cell_cols;
+  double cell_width = 957 / (double)cell_cols;
 
   unsigned int benchmarks = 0;
 
@@ -4252,8 +4415,8 @@ void heatmap_out( std::ofstream &file )
 
   cell_rows += 2;
 
-  file << "<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1002px' "
-            "viewBox='0 0 1002 " << 44 + cell_rows * 32 + 5 + 12 + 5 << "' style='background-color: white;'>\n"
+  file << "<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1202px' "
+            "viewBox='0 0 1202 " << 140 + cell_rows * 32 + 5 + 12 + 5 << "' style='background-color: white;'>\n"
           "  <style>\n"
           "  text\n"
           "  {\n"
@@ -4262,7 +4425,7 @@ void heatmap_out( std::ofstream &file )
           "    dominant-baseline: middle;\n"
           "  }\n"
           "  </style>\n"
-          "  <text x='501' y='16' style='font-size: 14px;' text-anchor='middle'>Total time taken relative to the "
+          "  <text x='601' y='16' style='font-size: 14px;' text-anchor='middle'>Total time taken relative to the "
                "fastest table in the benchmark (lower/lighter is better)</text>\n"
   ;
 
@@ -4386,7 +4549,7 @@ void heatmap_out( std::ofstream &file )
   heatmap_summary_row_out( file, row++, cell_width, "Average", false );
   heatmap_summary_row_out( file, row++, cell_width, "Geomean", true );
 
-  file << "  <text x='995' y='"<< 44 + cell_rows * 32 + 5 + 6
+  file << "  <text x='1195' y='"<< 140 + cell_rows * 32 + 5 + 6
        <<    "' text-anchor='end'>&#10013; Relies on tombstones or a tombstone-like mechanism</text>\n"
   ;
 
@@ -4406,7 +4569,7 @@ void html_out( std::string &file_id )
        << "<title>Benchmark Results</title>\n"
        << "</head>\n"
        << "<body style='background-color: rgb( 35, 33, 29 );  text-align: center;'>\n"
-       << "<div style='display: inline-block; background-color: rgb( 256, 256, 256 ); width: 978px; padding: 12px; " <<
+       << "<div style='display: inline-block; background-color: rgb( 256, 256, 256 ); width: 1178px; padding: 12px; " <<
              "margin-top: 8px; margin-bottom: 8px; line-height: 1.5; text-align: left;'>\n"
        << "<div style='font-family: sans-serif; font-weight: bold;'>Settings</div>\n"
        << "<div style='font-family: monospace;'>"
