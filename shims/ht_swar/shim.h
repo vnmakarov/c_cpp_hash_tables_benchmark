@@ -1,8 +1,8 @@
-// c_cpp_hash_tables_benchmark/shims/ht_h7simd2/shim.h
+// c_cpp_hash_tables_benchmark/shims/ht_swar/shim.h
 
-#include "ht_h7simd2.h"
+#include "ht_swar.h"
 
-template< typename blueprint > struct ht_h7simd2
+template< typename blueprint > struct ht_swar
 {
   struct entry
   {
@@ -12,7 +12,7 @@ template< typename blueprint > struct ht_h7simd2
 
   struct hash
   {
-    ht_h7simd2_hash_t operator()( const entry &e ) const
+    ht_swar_hash_t operator()( const entry &e ) const
     {
       return blueprint::hash_key( e.key );
     }
@@ -26,12 +26,12 @@ template< typename blueprint > struct ht_h7simd2
     }
   };
 
-  using tab = ht_h7simd2_t< entry, hash, eq >;
+  using tab = ht_swar_t< entry, hash, eq >;
   using table_type = tab;
 
   struct itr_type
   {
-    ht_h7simd2_size_t el_idx;
+    ht_swar_size_t el_idx;
     entry *entry_ptr;
   };
 
@@ -61,7 +61,7 @@ template< typename blueprint > struct ht_h7simd2
     entry temp;
     temp.key = key;
     entry *res;
-    bool found = tab::do_( &table, temp, HT_H7SIMD2_FIND, &res );
+    bool found = tab::do_( &table, temp, HT_SWAR_FIND, &res );
     itr_type itr;
     itr.entry_ptr = found ? res : nullptr;
     itr.el_idx = 0;
@@ -74,7 +74,7 @@ template< typename blueprint > struct ht_h7simd2
     temp.key = key;
     temp.value = typename blueprint::value_type();
     entry *res;
-    bool found = tab::do_( &table, temp, HT_H7SIMD2_INSERT, &res );
+    bool found = tab::do_( &table, temp, HT_SWAR_INSERT, &res );
     if( !found )
       *res = temp;
   }
@@ -84,7 +84,7 @@ template< typename blueprint > struct ht_h7simd2
     entry temp;
     temp.key = key;
     entry *res;
-    tab::do_( &table, temp, HT_H7SIMD2_DELETE, &res );
+    tab::do_( &table, temp, HT_SWAR_DELETE, &res );
   }
 
   static itr_type begin_itr( table_type &table )
@@ -123,9 +123,9 @@ template< typename blueprint > struct ht_h7simd2
   }
 };
 
-template<> struct ht_h7simd2< void >
+template<> struct ht_swar< void >
 {
-  static constexpr const char *label = "ht_h7simd2";
+  static constexpr const char *label = "ht_swar";
   static constexpr const char *color = "rgb( 30, 100, 180 )";
   static constexpr bool tombstone_like_mechanism = true;
 };
