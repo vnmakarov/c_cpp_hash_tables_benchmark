@@ -200,7 +200,8 @@ struct ihtab_t {
         return false;
       }
 
-      if (first_deleted_slot == ~(ihtab_size_t) 0) {
+      if ((action == IHTAB_INSERT || action == IHTAB_REPLACE)
+	  && first_deleted_slot == ~(ihtab_size_t) 0) {
         unsigned int del_mask = ihtab_deleted_mask (group);
         if (del_mask) {
           unsigned int bit = __builtin_ctz (del_mask);
