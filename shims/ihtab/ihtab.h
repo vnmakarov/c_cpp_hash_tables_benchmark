@@ -15,7 +15,8 @@ static constexpr unsigned int IHTAB_GROUP_SIZE = 8;
 #define IHTAB_USE_NEON 1
 static constexpr unsigned int IHTAB_GROUP_SIZE = 8;
 #else
-#error "ihtab requires SSE2 or NEON"
+#define IHTAB_USE_SWAR 1
+static constexpr unsigned int IHTAB_GROUP_SIZE = 8;
 #endif
 
 typedef uint32_t ihtab_ind_t;
@@ -29,26 +30,28 @@ static constexpr unsigned int IHTAB_LF_DIVISOR = 2;
 
 enum ihtab_action { IHTAB_FIND, IHTAB_INSERT, IHTAB_REPLACE, IHTAB_DELETE };
 
+static constexpr uint64_t IHTAB_SWAR_LSB = 0x0101010101010101ULL;
+static constexpr uint64_t IHTAB_SWAR_MSB = 0x8080808080808080ULL;
+
 #if IHTAB_USE_SSE2
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_match_mask (const unsigned char *group_h7,
-                                                  unsigned char h7_val) {
-  __m128i group = _mm_loadl_epi64 ((const __m128i *) group_h7);
+static inline unsigned int ihtab_match_mask (uint64_t g, unsigned char h7_val) {
+  __m128i group = _mm_cvtsi64_si128 ((long long) g);
   __m128i h7_vec = _mm_set1_epi8 ((char) h7_val);
   return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (group, h7_vec)) & 0xff;
 }
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_empty_mask (const unsigned char *group_h7) {
-  __m128i group = _mm_loadl_epi64 ((const __m128i *) group_h7);
+static inline unsigned int ihtab_empty_mask (uint64_t g) {
+  __m128i group = _mm_cvtsi64_si128 ((long long) g);
   __m128i empty_vec = _mm_set1_epi8 ((char) IHTAB_EMPTY_H7);
   return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (group, empty_vec)) & 0xff;
 }
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_deleted_mask (const unsigned char *group_h7) {
-  __m128i group = _mm_loadl_epi64 ((const __m128i *) group_h7);
+static inline unsigned int ihtab_deleted_mask (uint64_t g) {
+  __m128i group = _mm_cvtsi64_si128 ((long long) g);
   __m128i del_vec = _mm_set1_epi8 ((char) IHTAB_DELETED_H7);
   return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (group, del_vec)) & 0xff;
 }
@@ -56,28 +59,50 @@ static inline unsigned int ihtab_deleted_mask (const unsigned char *group_h7) {
 #elif IHTAB_USE_NEON
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_match_mask (const unsigned char *group_h7,
-                                                  unsigned char h7_val) {
-  uint8x8_t group = vld1_u8 (group_h7);
+static inline unsigned int ihtab_match_mask (uint64_t g, unsigned char h7_val) {
+  uint8x8_t group = vcreate_u8 (g);
   uint8x8_t match_eq = vceq_u8 (group, vdup_n_u8 (h7_val));
   static const uint8x8_t bit_mask = {1, 2, 4, 8, 16, 32, 64, 128};
   return (unsigned int) vaddv_u8 (vand_u8 (match_eq, bit_mask));
 }
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_empty_mask (const unsigned char *group_h7) {
-  uint8x8_t group = vld1_u8 (group_h7);
+static inline unsigned int ihtab_empty_mask (uint64_t g) {
+  uint8x8_t group = vcreate_u8 (g);
   uint8x8_t empty_eq = vceq_u8 (group, vdup_n_u8 (IHTAB_EMPTY_H7));
   static const uint8x8_t bit_mask = {1, 2, 4, 8, 16, 32, 64, 128};
   return (unsigned int) vaddv_u8 (vand_u8 (empty_eq, bit_mask));
 }
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_deleted_mask (const unsigned char *group_h7) {
-  uint8x8_t group = vld1_u8 (group_h7);
+static inline unsigned int ihtab_deleted_mask (uint64_t g) {
+  uint8x8_t group = vcreate_u8 (g);
   uint8x8_t del_eq = vceq_u8 (group, vdup_n_u8 (IHTAB_DELETED_H7));
   static const uint8x8_t bit_mask = {1, 2, 4, 8, 16, 32, 64, 128};
   return (unsigned int) vaddv_u8 (vand_u8 (del_eq, bit_mask));
+}
+
+#elif IHTAB_USE_SWAR
+
+__attribute__((always_inline))
+static inline unsigned int ihtab_match_mask (uint64_t g, unsigned char h7_val) {
+  uint64_t cmp = g ^ (IHTAB_SWAR_LSB * h7_val);
+  uint64_t matches = (cmp - IHTAB_SWAR_LSB) & ~cmp & IHTAB_SWAR_MSB;
+  return (unsigned int) ((matches >> 7) * IHTAB_SWAR_LSB >> 56);
+}
+
+__attribute__((always_inline))
+static inline unsigned int ihtab_empty_mask (uint64_t g) {
+  uint64_t cmp = g ^ (IHTAB_SWAR_LSB * IHTAB_EMPTY_H7);
+  uint64_t matches = (cmp - IHTAB_SWAR_LSB) & ~cmp & IHTAB_SWAR_MSB;
+  return (unsigned int) ((matches >> 7) * IHTAB_SWAR_LSB >> 56);
+}
+
+__attribute__((always_inline))
+static inline unsigned int ihtab_deleted_mask (uint64_t g) {
+  uint64_t cmp = g ^ (IHTAB_SWAR_LSB * IHTAB_DELETED_H7);
+  uint64_t matches = (cmp - IHTAB_SWAR_LSB) & ~cmp & IHTAB_SWAR_MSB;
+  return (unsigned int) ((matches >> 7) * IHTAB_SWAR_LSB >> 56);
 }
 
 #endif
@@ -137,7 +162,8 @@ struct ihtab_t {
 
     for (;;) {
       unsigned char *group_h7 = bin.h7 + group_ind * IHTAB_GROUP_SIZE;
-      unsigned int match_mask = ihtab_match_mask (group_h7, h7_val);
+      uint64_t group = *(const uint64_t *) group_h7;
+      unsigned int match_mask = ihtab_match_mask (group, h7_val);
       while (match_mask) {
         unsigned int bit = __builtin_ctz (match_mask);
         ihtab_size_t slot = group_ind * IHTAB_GROUP_SIZE + bit;
@@ -155,7 +181,7 @@ struct ihtab_t {
         match_mask &= match_mask - 1;
       }
 
-      unsigned int empty_mask = ihtab_empty_mask (group_h7);
+      unsigned int empty_mask = ihtab_empty_mask (group);
       if (empty_mask) {
         if (action == IHTAB_INSERT || action == IHTAB_REPLACE) {
           htab->els_num++;
@@ -175,7 +201,7 @@ struct ihtab_t {
       }
 
       if (first_deleted_slot == ~(ihtab_size_t) 0) {
-        unsigned int del_mask = ihtab_deleted_mask (group_h7);
+        unsigned int del_mask = ihtab_deleted_mask (group);
         if (del_mask) {
           unsigned int bit = __builtin_ctz (del_mask);
           first_deleted_slot = group_ind * IHTAB_GROUP_SIZE + bit;
@@ -186,36 +212,41 @@ struct ihtab_t {
     }
   }
 
+  static void rebuild (ihtab_t *htab) {
+    ihtab_size_t entries_size = (htab->bin.groups_mask + 1) * IHTAB_GROUP_SIZE;
+    ihtab_size_t els_size = entries_size * IHTAB_LF_FACTOR / IHTAB_LF_DIVISOR;
+    if (2 * IHTAB_LF_DIVISOR * htab->els_num >= IHTAB_LF_FACTOR * entries_size) {
+      entries_size *= 2;
+      els_size = entries_size * IHTAB_LF_FACTOR / IHTAB_LF_DIVISOR;
+    }
+    hbin_ihtab_t<El> resize_bin;
+    resize_bin.els = (El *) std::malloc (els_size * sizeof (El));
+    ihtab_size_t del_bytes = (els_size + 7) / 8;
+    resize_bin.deleted = (char *) std::calloc (del_bytes, 1);
+    resize_bin.h7 = (unsigned char *) std::aligned_alloc (IHTAB_GROUP_SIZE, entries_size);
+    std::memset (resize_bin.h7, IHTAB_EMPTY_H7, entries_size);
+    resize_bin.entries = (ihtab_ind_t *) std::malloc (entries_size * sizeof (ihtab_ind_t));
+    resize_bin.groups_mask = entries_size / IHTAB_GROUP_SIZE - 1;
+    resize_bin.els_start = resize_bin.els_bound = 0;
+    ihtab_size_t bound = htab->bin.els_bound;
+    ihtab_size_t saved_els_num = htab->els_num;
+    for (ihtab_size_t i = htab->bin.els_start; i < bound; i++)
+      if (!(htab->bin.deleted[i / 8] & (1 << (i % 8)))) {
+        El *r;
+        do_1 (htab, resize_bin, htab->bin.els[i], IHTAB_INSERT, &r);
+        *r = htab->bin.els[i];
+      }
+    htab->els_num = saved_els_num;
+    destroy_bin (htab->bin);
+    htab->bin = resize_bin;
+  }
+
   __attribute__((always_inline))
   static bool do_ (ihtab_t *htab, El &el, enum ihtab_action action, El **res) {
     ihtab_size_t entries_size = (htab->bin.groups_mask + 1) * IHTAB_GROUP_SIZE;
     ihtab_size_t els_size = entries_size * IHTAB_LF_FACTOR / IHTAB_LF_DIVISOR;
-    if (action != IHTAB_DELETE && __builtin_expect(htab->bin.els_bound >= els_size, 0)) {
-      if (2 * IHTAB_LF_DIVISOR * htab->els_num >= IHTAB_LF_FACTOR * entries_size) {
-        entries_size *= 2;
-        els_size = entries_size * IHTAB_LF_FACTOR / IHTAB_LF_DIVISOR;
-      }
-      hbin_ihtab_t<El> resize_bin;
-      resize_bin.els = (El *) std::malloc (els_size * sizeof (El));
-      ihtab_size_t del_bytes = (els_size + 7) / 8;
-      resize_bin.deleted = (char *) std::calloc (del_bytes, 1);
-      resize_bin.h7 = (unsigned char *) std::aligned_alloc (IHTAB_GROUP_SIZE, entries_size);
-      std::memset (resize_bin.h7, IHTAB_EMPTY_H7, entries_size);
-      resize_bin.entries = (ihtab_ind_t *) std::malloc (entries_size * sizeof (ihtab_ind_t));
-      resize_bin.groups_mask = entries_size / IHTAB_GROUP_SIZE - 1;
-      resize_bin.els_start = resize_bin.els_bound = 0;
-      ihtab_size_t bound = htab->bin.els_bound;
-      ihtab_size_t saved_els_num = htab->els_num;
-      for (ihtab_size_t i = htab->bin.els_start; i < bound; i++)
-        if (!(htab->bin.deleted[i / 8] & (1 << (i % 8)))) {
-          El *r;
-          do_1 (htab, resize_bin, htab->bin.els[i], IHTAB_INSERT, &r);
-          *r = htab->bin.els[i];
-        }
-      htab->els_num = saved_els_num;
-      destroy_bin (htab->bin);
-      htab->bin = resize_bin;
-    }
+    if (action != IHTAB_DELETE && __builtin_expect(htab->bin.els_bound >= els_size, 0))
+      rebuild (htab);
     return do_1 (htab, htab->bin, el, action, res);
   }
 
