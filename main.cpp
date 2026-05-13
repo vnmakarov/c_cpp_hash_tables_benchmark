@@ -31,6 +31,16 @@ static_assert( DISCARDED_RUNS_COUNT % 2 == 0 );
 // This approach proved to be more reliable than local volatile variables.
 size_t do_not_optimize;
 
+#include <set>
+#include <string>
+std::set< std::string > shims_filter;
+
+template< template< typename > typename shim >
+bool shim_active()
+{
+  return shims_filter.empty() || shims_filter.count( shim< void >::label );
+}
+
 // Concept to check that a blueprint is correctly formed.
 template< typename blueprint >
 concept check_blueprint =
@@ -1634,6 +1644,59 @@ static_assert( check_shim_against_blueprint< SHIM_28, BLUEPRINT_16 > );
 #endif
 #endif
 
+#ifdef SHIM_29
+#include STRINGIFY( shims/SHIM_29/shim.h )
+static_assert( check_shim< SHIM_29 > );
+#ifdef BLUEPRINT_1
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_1 > );
+#endif
+#ifdef BLUEPRINT_2
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_2 > );
+#endif
+#ifdef BLUEPRINT_3
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_3 > );
+#endif
+#ifdef BLUEPRINT_4
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_4 > );
+#endif
+#ifdef BLUEPRINT_5
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_5 > );
+#endif
+#ifdef BLUEPRINT_6
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_6 > );
+#endif
+#ifdef BLUEPRINT_7
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_7 > );
+#endif
+#ifdef BLUEPRINT_8
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_8 > );
+#endif
+#ifdef BLUEPRINT_9
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_9 > );
+#endif
+#ifdef BLUEPRINT_10
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_10 > );
+#endif
+#ifdef BLUEPRINT_11
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_11 > );
+#endif
+#ifdef BLUEPRINT_12
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_12 > );
+#endif
+#ifdef BLUEPRINT_13
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_13 > );
+#endif
+#ifdef BLUEPRINT_14
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_14 > );
+#endif
+#ifdef BLUEPRINT_15
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_15 > );
+#endif
+#ifdef BLUEPRINT_16
+static_assert( check_shim_against_blueprint< SHIM_29, BLUEPRINT_16 > );
+#endif
+#endif
+
 // Random number generator.
 std::default_random_engine random_number_generator( std::chrono::steady_clock::now().time_since_epoch().count() );
 
@@ -2014,6 +2077,7 @@ template< template< typename > typename shim, typename blueprint >void benchmark
 template< template< typename > typename shim >
 void benchmarks( unsigned int run )
 {
+  if( !shim_active< shim >() ) return;
   #ifdef BLUEPRINT_1
   benchmark< shim, BLUEPRINT_1 >( run );
   #endif
@@ -2286,88 +2350,120 @@ template< typename blueprint, benchmark_ids benchmark_id > void graph_out( std::
 
   // Output the styling for each shim's label and plot.
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   graph_shim_styling_out< SHIM_1, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   graph_shim_styling_out< SHIM_2, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   graph_shim_styling_out< SHIM_3, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   graph_shim_styling_out< SHIM_4, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   graph_shim_styling_out< SHIM_5, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   graph_shim_styling_out< SHIM_6, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   graph_shim_styling_out< SHIM_7, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   graph_shim_styling_out< SHIM_8, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   graph_shim_styling_out< SHIM_9, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   graph_shim_styling_out< SHIM_10, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   graph_shim_styling_out< SHIM_11, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   graph_shim_styling_out< SHIM_12, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   graph_shim_styling_out< SHIM_13, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   graph_shim_styling_out< SHIM_14, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   graph_shim_styling_out< SHIM_15, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   graph_shim_styling_out< SHIM_16, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   graph_shim_styling_out< SHIM_17, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   graph_shim_styling_out< SHIM_18, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   graph_shim_styling_out< SHIM_19, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   graph_shim_styling_out< SHIM_20, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   graph_shim_styling_out< SHIM_21, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   graph_shim_styling_out< SHIM_22, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   graph_shim_styling_out< SHIM_23, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   graph_shim_styling_out< SHIM_24, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   graph_shim_styling_out< SHIM_25, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   graph_shim_styling_out< SHIM_26, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   graph_shim_styling_out< SHIM_27, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   graph_shim_styling_out< SHIM_28, blueprint, benchmark_id >( file );
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  graph_shim_styling_out< SHIM_29, blueprint, benchmark_id >( file );
   #endif
 
   // Output the ideal graph y-axis scale for each plot.
@@ -2380,172 +2476,236 @@ template< typename blueprint, benchmark_ids benchmark_id > void graph_out( std::
   std::vector< std::pair< size_t, double > > max_results;
 
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_1, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_1, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_2, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_2, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_3, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_3, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_4, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_4, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_5, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_5, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_6, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_6, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_7, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_7, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_8, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_8, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_9, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_9, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_10, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_10, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_11, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_11, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_12, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_12, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_13, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_13, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_14, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_14, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_15, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_15, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_16, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_16, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_17, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_17, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_18, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_18, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_19, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_19, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_20, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_20, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_21, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_21, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_22, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_22, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_23, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_23, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_24, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_24, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_25, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_25, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_26, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_26, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_27, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_27, blueprint, benchmark_id >()
   );
+  }
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() ) {
   max_results.emplace_back(
     plot_id< SHIM_28, blueprint, benchmark_id >(),
     max_adjusted_average_result< SHIM_28, blueprint, benchmark_id >()
   );
+  }
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() ) {
+  max_results.emplace_back(
+    plot_id< SHIM_29, blueprint, benchmark_id >(),
+    max_adjusted_average_result< SHIM_29, blueprint, benchmark_id >()
+  );
+  }
   #endif
   max_results.emplace_back(
   );
@@ -2582,88 +2742,120 @@ template< typename blueprint, benchmark_ids benchmark_id > void graph_out( std::
   ;
 
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   graph_shim_label_out< SHIM_1, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   graph_shim_label_out< SHIM_2, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   graph_shim_label_out< SHIM_3, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   graph_shim_label_out< SHIM_4, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   graph_shim_label_out< SHIM_5, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   graph_shim_label_out< SHIM_6, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   graph_shim_label_out< SHIM_7, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   graph_shim_label_out< SHIM_8, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   graph_shim_label_out< SHIM_9, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   graph_shim_label_out< SHIM_10, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   graph_shim_label_out< SHIM_11, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   graph_shim_label_out< SHIM_12, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   graph_shim_label_out< SHIM_13, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   graph_shim_label_out< SHIM_14, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   graph_shim_label_out< SHIM_15, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   graph_shim_label_out< SHIM_16, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   graph_shim_label_out< SHIM_17, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   graph_shim_label_out< SHIM_18, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   graph_shim_label_out< SHIM_19, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   graph_shim_label_out< SHIM_20, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   graph_shim_label_out< SHIM_21, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   graph_shim_label_out< SHIM_22, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   graph_shim_label_out< SHIM_23, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   graph_shim_label_out< SHIM_24, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   graph_shim_label_out< SHIM_25, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   graph_shim_label_out< SHIM_26, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   graph_shim_label_out< SHIM_27, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   graph_shim_label_out< SHIM_28, blueprint, benchmark_id >( file );
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  graph_shim_label_out< SHIM_29, blueprint, benchmark_id >( file );
   #endif
 
   // Output the actual graph.
@@ -2701,88 +2893,120 @@ template< typename blueprint, benchmark_ids benchmark_id > void graph_out( std::
   ;
 
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   graph_shim_plot_out< SHIM_1, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   graph_shim_plot_out< SHIM_2, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   graph_shim_plot_out< SHIM_3, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   graph_shim_plot_out< SHIM_4, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   graph_shim_plot_out< SHIM_5, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   graph_shim_plot_out< SHIM_6, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   graph_shim_plot_out< SHIM_7, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   graph_shim_plot_out< SHIM_8, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   graph_shim_plot_out< SHIM_9, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   graph_shim_plot_out< SHIM_10, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   graph_shim_plot_out< SHIM_11, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   graph_shim_plot_out< SHIM_12, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   graph_shim_plot_out< SHIM_13, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   graph_shim_plot_out< SHIM_14, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   graph_shim_plot_out< SHIM_15, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   graph_shim_plot_out< SHIM_16, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   graph_shim_plot_out< SHIM_17, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   graph_shim_plot_out< SHIM_18, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   graph_shim_plot_out< SHIM_19, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   graph_shim_plot_out< SHIM_20, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   graph_shim_plot_out< SHIM_21, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   graph_shim_plot_out< SHIM_22, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   graph_shim_plot_out< SHIM_23, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   graph_shim_plot_out< SHIM_24, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   graph_shim_plot_out< SHIM_25, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   graph_shim_plot_out< SHIM_26, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   graph_shim_plot_out< SHIM_27, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   graph_shim_plot_out< SHIM_28, blueprint, benchmark_id >( file );
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  graph_shim_plot_out< SHIM_29, blueprint, benchmark_id >( file );
   #endif
 
   // Finish up.
@@ -2852,7 +3076,7 @@ template< template< typename > typename shim >
 void heatmap_shim_label_out( std::ofstream &file, unsigned int col, double cell_width )
 {
   double cx = 240 + ( col + 0.5 ) * cell_width;
-  file << "  <text x='" << cx << "' y='137' text-anchor='end' "
+  file << "  <text x='" << cx << "' y='127' text-anchor='end' "
        <<     "transform='rotate(-45 " << cx << " 37)'>" << shim< void >::label
        << "</text>\n"
   ;
@@ -2884,7 +3108,7 @@ void heatmap_cell_out( std::ofstream &file, unsigned int row, unsigned int col, 
   double normalized_total = total_adjusted_average_result<shim, blueprint, benchmark_id>() / lowest_total;
 
   double x = 240 + col * cell_width;
-  double y = 140 + row * 32;
+  double y = 150 + row * 32;
 
   static const uint8_t colors [ 256 ][ 3 ] =
   {
@@ -2954,88 +3178,120 @@ double heatmap_lowest_total()
   double lowest_total = std::numeric_limits<double>::max();
 
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_1, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_2, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_3, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_4, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_5, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_6, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_7, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_8, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_9, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_10, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_11, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_12, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_13, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_14, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_15, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_16, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_17, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_18, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_19, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_20, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_21, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_22, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_23, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_24, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_25, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_26, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_27, blueprint, benchmark_id >(), lowest_total );
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   lowest_total = std::min( total_adjusted_average_result< SHIM_28, blueprint, benchmark_id >(), lowest_total );
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  lowest_total = std::min( total_adjusted_average_result< SHIM_29, blueprint, benchmark_id >(), lowest_total );
   #endif
 
   return lowest_total;
@@ -3047,7 +3303,7 @@ void heatmap_row_out( std::ofstream &file, unsigned int row, double cell_width )
 {
   double lowest_total = heatmap_lowest_total< blueprint, benchmark_id >();
 
-  double center_y = 140 + ( row + 0.5 ) * 32 + 1;
+  double center_y = 150 + ( row + 0.5 ) * 32 + 1;
 
   file << "  <text x='7' y='" << center_y - 7 << "'>" << blueprint::label << ":</text>\n"
           "  <text x='7' y='" << center_y + 7 << "'>" << benchmark_alt_names[ benchmark_id ] << "</text>\n"
@@ -3056,88 +3312,120 @@ void heatmap_row_out( std::ofstream &file, unsigned int row, double cell_width )
   int col = 0;
 
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   heatmap_cell_out< SHIM_1, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   heatmap_cell_out< SHIM_2, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   heatmap_cell_out< SHIM_3, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   heatmap_cell_out< SHIM_4, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   heatmap_cell_out< SHIM_5, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   heatmap_cell_out< SHIM_6, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   heatmap_cell_out< SHIM_7, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   heatmap_cell_out< SHIM_8, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   heatmap_cell_out< SHIM_9, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   heatmap_cell_out< SHIM_10, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   heatmap_cell_out< SHIM_11, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   heatmap_cell_out< SHIM_12, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   heatmap_cell_out< SHIM_13, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   heatmap_cell_out< SHIM_14, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   heatmap_cell_out< SHIM_15, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   heatmap_cell_out< SHIM_16, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   heatmap_cell_out< SHIM_17, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   heatmap_cell_out< SHIM_18, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   heatmap_cell_out< SHIM_19, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   heatmap_cell_out< SHIM_20, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   heatmap_cell_out< SHIM_21, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   heatmap_cell_out< SHIM_22, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   heatmap_cell_out< SHIM_23, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   heatmap_cell_out< SHIM_24, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   heatmap_cell_out< SHIM_25, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   heatmap_cell_out< SHIM_26, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   heatmap_cell_out< SHIM_27, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   heatmap_cell_out< SHIM_28, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  heatmap_cell_out< SHIM_29, blueprint, benchmark_id >( file, row, col++, cell_width, lowest_total );
   #endif
 }
 
@@ -3292,7 +3580,7 @@ void heatmap_summary_cell( std::ofstream &file, unsigned int row, unsigned int c
                            double value, double best_value )
 {
   double x = 240 + col * cell_width;
-  double y = 140 + row * 32;
+  double y = 150 + row * 32;
 
   double ratio = value / best_value;
   uint8_t color = std::min( ( ratio - 1.0 ) / 9.0, 1.0 ) * 255;
@@ -3358,10 +3646,10 @@ void heatmap_summary_cell( std::ofstream &file, unsigned int row, unsigned int c
 // Output a summary row (average or geomean) for all shims.
 void heatmap_summary_row_out( std::ofstream &file, unsigned int row, double cell_width, const char *label, bool geomean )
 {
-  double center_y = 140 + ( row + 0.5 ) * 32 + 1;
+  double center_y = 150 + ( row + 0.5 ) * 32 + 1;
   file << "  <text x='7' y='" << center_y << "'>" << label << "</text>\n";
 
-  constexpr int MAX_SHIMS = 28;
+  constexpr int MAX_SHIMS = 29;
   double values[ MAX_SHIMS ];
   int shim_count = 0;
 
@@ -3373,88 +3661,120 @@ void heatmap_summary_row_out( std::ofstream &file, unsigned int row, double cell
   };
 
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_1 >( s, l, c ); } );
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_2 >( s, l, c ); } );
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_3 >( s, l, c ); } );
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_4 >( s, l, c ); } );
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_5 >( s, l, c ); } );
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_6 >( s, l, c ); } );
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_7 >( s, l, c ); } );
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_8 >( s, l, c ); } );
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_9 >( s, l, c ); } );
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_10 >( s, l, c ); } );
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_11 >( s, l, c ); } );
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_12 >( s, l, c ); } );
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_13 >( s, l, c ); } );
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_14 >( s, l, c ); } );
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_15 >( s, l, c ); } );
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_16 >( s, l, c ); } );
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_17 >( s, l, c ); } );
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_18 >( s, l, c ); } );
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_19 >( s, l, c ); } );
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_20 >( s, l, c ); } );
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_21 >( s, l, c ); } );
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_22 >( s, l, c ); } );
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_23 >( s, l, c ); } );
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_24 >( s, l, c ); } );
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_25 >( s, l, c ); } );
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_26 >( s, l, c ); } );
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_27 >( s, l, c ); } );
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_28 >( s, l, c ); } );
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  collect_shim( []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_29 >( s, l, c ); } );
   #endif
 
   double best = *std::min_element( values, values + shim_count );
@@ -3486,6 +3806,7 @@ void measure_memory()
 template< template< typename > typename shim >
 void measure_memories()
 {
+  if( !shim_active< shim >() ) return;
   #ifdef BLUEPRINT_1
   measure_memory< shim, BLUEPRINT_1 >();
   #endif
@@ -3546,7 +3867,7 @@ void memory_heatmap_cell_out( std::ofstream &file, unsigned int row, unsigned in
   double bytes_per_el = (double) mem / KEY_COUNT;
 
   double x = 240 + col * cell_width;
-  double y = 140 + row * 32;
+  double y = 150 + row * 32;
 
   static const uint8_t colors [ 256 ][ 3 ] =
   {
@@ -3615,178 +3936,242 @@ void memory_heatmap_row_out( std::ofstream &file, unsigned int row, double cell_
   size_t lowest = ~(size_t) 0;
 
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   lowest = std::min( memory_result< SHIM_1, blueprint >(), lowest );
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   lowest = std::min( memory_result< SHIM_2, blueprint >(), lowest );
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   lowest = std::min( memory_result< SHIM_3, blueprint >(), lowest );
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   lowest = std::min( memory_result< SHIM_4, blueprint >(), lowest );
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   lowest = std::min( memory_result< SHIM_5, blueprint >(), lowest );
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   lowest = std::min( memory_result< SHIM_6, blueprint >(), lowest );
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   lowest = std::min( memory_result< SHIM_7, blueprint >(), lowest );
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   lowest = std::min( memory_result< SHIM_8, blueprint >(), lowest );
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   lowest = std::min( memory_result< SHIM_9, blueprint >(), lowest );
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   lowest = std::min( memory_result< SHIM_10, blueprint >(), lowest );
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   lowest = std::min( memory_result< SHIM_11, blueprint >(), lowest );
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   lowest = std::min( memory_result< SHIM_12, blueprint >(), lowest );
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   lowest = std::min( memory_result< SHIM_13, blueprint >(), lowest );
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   lowest = std::min( memory_result< SHIM_14, blueprint >(), lowest );
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   lowest = std::min( memory_result< SHIM_15, blueprint >(), lowest );
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   lowest = std::min( memory_result< SHIM_16, blueprint >(), lowest );
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   lowest = std::min( memory_result< SHIM_17, blueprint >(), lowest );
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   lowest = std::min( memory_result< SHIM_18, blueprint >(), lowest );
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   lowest = std::min( memory_result< SHIM_19, blueprint >(), lowest );
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   lowest = std::min( memory_result< SHIM_20, blueprint >(), lowest );
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   lowest = std::min( memory_result< SHIM_21, blueprint >(), lowest );
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   lowest = std::min( memory_result< SHIM_22, blueprint >(), lowest );
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   lowest = std::min( memory_result< SHIM_23, blueprint >(), lowest );
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   lowest = std::min( memory_result< SHIM_24, blueprint >(), lowest );
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   lowest = std::min( memory_result< SHIM_25, blueprint >(), lowest );
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   lowest = std::min( memory_result< SHIM_26, blueprint >(), lowest );
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   lowest = std::min( memory_result< SHIM_27, blueprint >(), lowest );
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   lowest = std::min( memory_result< SHIM_28, blueprint >(), lowest );
   #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  lowest = std::min( memory_result< SHIM_29, blueprint >(), lowest );
+  #endif
 
-  double center_y = 140 + ( row + 0.5 ) * 32 + 1;
+  double center_y = 150 + ( row + 0.5 ) * 32 + 1;
   file << "  <text x='7' y='" << center_y << "'>" << blueprint::label << "</text>\n";
 
   int col = 0;
 
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   memory_heatmap_cell_out< SHIM_1, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   memory_heatmap_cell_out< SHIM_2, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   memory_heatmap_cell_out< SHIM_3, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   memory_heatmap_cell_out< SHIM_4, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   memory_heatmap_cell_out< SHIM_5, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   memory_heatmap_cell_out< SHIM_6, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   memory_heatmap_cell_out< SHIM_7, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   memory_heatmap_cell_out< SHIM_8, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   memory_heatmap_cell_out< SHIM_9, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   memory_heatmap_cell_out< SHIM_10, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   memory_heatmap_cell_out< SHIM_11, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   memory_heatmap_cell_out< SHIM_12, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   memory_heatmap_cell_out< SHIM_13, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   memory_heatmap_cell_out< SHIM_14, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   memory_heatmap_cell_out< SHIM_15, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   memory_heatmap_cell_out< SHIM_16, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   memory_heatmap_cell_out< SHIM_17, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   memory_heatmap_cell_out< SHIM_18, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   memory_heatmap_cell_out< SHIM_19, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   memory_heatmap_cell_out< SHIM_20, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   memory_heatmap_cell_out< SHIM_21, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   memory_heatmap_cell_out< SHIM_22, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   memory_heatmap_cell_out< SHIM_23, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   memory_heatmap_cell_out< SHIM_24, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   memory_heatmap_cell_out< SHIM_25, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   memory_heatmap_cell_out< SHIM_26, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   memory_heatmap_cell_out< SHIM_27, blueprint >( file, row, col++, cell_width, lowest );
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   memory_heatmap_cell_out< SHIM_28, blueprint >( file, row, col++, cell_width, lowest );
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  memory_heatmap_cell_out< SHIM_29, blueprint >( file, row, col++, cell_width, lowest );
   #endif
 }
 
@@ -3852,87 +4237,119 @@ void memory_heatmap_out( std::ofstream &file )
 {
   unsigned int cell_cols = 0;
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
+  ++cell_cols;
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
   ++cell_cols;
   #endif
 
@@ -3991,7 +4408,7 @@ void memory_heatmap_out( std::ofstream &file )
   cell_rows += 1;
 
   file << "<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1202px' "
-            "viewBox='0 0 1202 " << 140 + cell_rows * 32 + 5 << "' style='background-color: white;'>\n"
+            "viewBox='0 0 1202 " << 150 + cell_rows * 32 + 5 << "' style='background-color: white;'>\n"
           "  <style>\n"
           "  text\n"
           "  {\n"
@@ -4006,88 +4423,120 @@ void memory_heatmap_out( std::ofstream &file )
 
   unsigned int col = 0;
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   heatmap_shim_label_out< SHIM_1 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   heatmap_shim_label_out< SHIM_2 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   heatmap_shim_label_out< SHIM_3 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   heatmap_shim_label_out< SHIM_4 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   heatmap_shim_label_out< SHIM_5 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   heatmap_shim_label_out< SHIM_6 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   heatmap_shim_label_out< SHIM_7 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   heatmap_shim_label_out< SHIM_8 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   heatmap_shim_label_out< SHIM_9 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   heatmap_shim_label_out< SHIM_10 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   heatmap_shim_label_out< SHIM_11 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   heatmap_shim_label_out< SHIM_12 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   heatmap_shim_label_out< SHIM_13 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   heatmap_shim_label_out< SHIM_14 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   heatmap_shim_label_out< SHIM_15 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   heatmap_shim_label_out< SHIM_16 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   heatmap_shim_label_out< SHIM_17 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   heatmap_shim_label_out< SHIM_18 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   heatmap_shim_label_out< SHIM_19 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   heatmap_shim_label_out< SHIM_20 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   heatmap_shim_label_out< SHIM_21 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   heatmap_shim_label_out< SHIM_22 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   heatmap_shim_label_out< SHIM_23 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   heatmap_shim_label_out< SHIM_24 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   heatmap_shim_label_out< SHIM_25 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   heatmap_shim_label_out< SHIM_26 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   heatmap_shim_label_out< SHIM_27 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   heatmap_shim_label_out< SHIM_28 >( file, col++, cell_width );
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  heatmap_shim_label_out< SHIM_29 >( file, col++, cell_width );
   #endif
 
   unsigned int row = 0;
@@ -4142,98 +4591,130 @@ void memory_heatmap_out( std::ofstream &file )
 
   // Average row.
   {
-    double center_y = 140 + ( row + 0.5 ) * 32 + 1;
+    double center_y = 150 + ( row + 0.5 ) * 32 + 1;
     file << "  <text x='7' y='" << center_y << "'>Average</text>\n";
 
-    constexpr int MAX_SHIMS = 28;
+    constexpr int MAX_SHIMS = 29;
     double values[ MAX_SHIMS ];
     int shim_count = 0;
 
     auto collect_shim = [&]( auto fn ) { values[ shim_count++ ] = fn(); };
 
     #ifdef SHIM_1
+    if( shim_active< SHIM_1 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_1 >(); } );
     #endif
     #ifdef SHIM_2
+    if( shim_active< SHIM_2 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_2 >(); } );
     #endif
     #ifdef SHIM_3
+    if( shim_active< SHIM_3 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_3 >(); } );
     #endif
     #ifdef SHIM_4
+    if( shim_active< SHIM_4 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_4 >(); } );
     #endif
     #ifdef SHIM_5
+    if( shim_active< SHIM_5 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_5 >(); } );
     #endif
     #ifdef SHIM_6
+    if( shim_active< SHIM_6 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_6 >(); } );
     #endif
     #ifdef SHIM_7
+    if( shim_active< SHIM_7 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_7 >(); } );
     #endif
     #ifdef SHIM_8
+    if( shim_active< SHIM_8 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_8 >(); } );
     #endif
     #ifdef SHIM_9
+    if( shim_active< SHIM_9 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_9 >(); } );
     #endif
     #ifdef SHIM_10
+    if( shim_active< SHIM_10 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_10 >(); } );
     #endif
     #ifdef SHIM_11
+    if( shim_active< SHIM_11 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_11 >(); } );
     #endif
     #ifdef SHIM_12
+    if( shim_active< SHIM_12 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_12 >(); } );
     #endif
     #ifdef SHIM_13
+    if( shim_active< SHIM_13 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_13 >(); } );
     #endif
     #ifdef SHIM_14
+    if( shim_active< SHIM_14 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_14 >(); } );
     #endif
     #ifdef SHIM_15
+    if( shim_active< SHIM_15 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_15 >(); } );
     #endif
     #ifdef SHIM_16
+    if( shim_active< SHIM_16 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_16 >(); } );
     #endif
     #ifdef SHIM_17
+    if( shim_active< SHIM_17 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_17 >(); } );
     #endif
     #ifdef SHIM_18
+    if( shim_active< SHIM_18 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_18 >(); } );
     #endif
     #ifdef SHIM_19
+    if( shim_active< SHIM_19 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_19 >(); } );
     #endif
     #ifdef SHIM_20
+    if( shim_active< SHIM_20 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_20 >(); } );
     #endif
     #ifdef SHIM_21
+    if( shim_active< SHIM_21 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_21 >(); } );
     #endif
     #ifdef SHIM_22
+    if( shim_active< SHIM_22 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_22 >(); } );
     #endif
     #ifdef SHIM_23
+    if( shim_active< SHIM_23 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_23 >(); } );
     #endif
     #ifdef SHIM_24
+    if( shim_active< SHIM_24 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_24 >(); } );
     #endif
     #ifdef SHIM_25
+    if( shim_active< SHIM_25 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_25 >(); } );
     #endif
     #ifdef SHIM_26
+    if( shim_active< SHIM_26 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_26 >(); } );
     #endif
     #ifdef SHIM_27
+    if( shim_active< SHIM_27 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_27 >(); } );
     #endif
     #ifdef SHIM_28
+    if( shim_active< SHIM_28 >() )
     collect_shim( []() { return memory_average_bytes_per_el< SHIM_28 >(); } );
+    #endif
+    #ifdef SHIM_29
+    if( shim_active< SHIM_29 >() )
+    collect_shim( []() { return memory_average_bytes_per_el< SHIM_29 >(); } );
     #endif
 
     double best = *std::min_element( values, values + shim_count );
@@ -4251,87 +4732,119 @@ void heatmap_out( std::ofstream &file )
   unsigned int cell_cols = 0;
 
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   ++cell_cols;
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
+  ++cell_cols;
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
   ++cell_cols;
   #endif
   ++cell_cols;
@@ -4416,7 +4929,7 @@ void heatmap_out( std::ofstream &file )
   cell_rows += 2;
 
   file << "<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1202px' "
-            "viewBox='0 0 1202 " << 140 + cell_rows * 32 + 5 + 12 + 5 << "' style='background-color: white;'>\n"
+            "viewBox='0 0 1202 " << 150 + cell_rows * 32 + 5 + 12 + 5 << "' style='background-color: white;'>\n"
           "  <style>\n"
           "  text\n"
           "  {\n"
@@ -4434,88 +4947,120 @@ void heatmap_out( std::ofstream &file )
   unsigned int col = 0;
 
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   heatmap_shim_label_out< SHIM_1 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   heatmap_shim_label_out< SHIM_2 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   heatmap_shim_label_out< SHIM_3 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   heatmap_shim_label_out< SHIM_4 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   heatmap_shim_label_out< SHIM_5 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   heatmap_shim_label_out< SHIM_6 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   heatmap_shim_label_out< SHIM_7 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   heatmap_shim_label_out< SHIM_8 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   heatmap_shim_label_out< SHIM_9 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   heatmap_shim_label_out< SHIM_10 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   heatmap_shim_label_out< SHIM_11 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   heatmap_shim_label_out< SHIM_12 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   heatmap_shim_label_out< SHIM_13 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   heatmap_shim_label_out< SHIM_14 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   heatmap_shim_label_out< SHIM_15 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   heatmap_shim_label_out< SHIM_16 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   heatmap_shim_label_out< SHIM_17 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   heatmap_shim_label_out< SHIM_18 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   heatmap_shim_label_out< SHIM_19 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   heatmap_shim_label_out< SHIM_20 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   heatmap_shim_label_out< SHIM_21 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   heatmap_shim_label_out< SHIM_22 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   heatmap_shim_label_out< SHIM_23 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   heatmap_shim_label_out< SHIM_24 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   heatmap_shim_label_out< SHIM_25 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   heatmap_shim_label_out< SHIM_26 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   heatmap_shim_label_out< SHIM_27 >( file, col++, cell_width );
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   heatmap_shim_label_out< SHIM_28 >( file, col++, cell_width );
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  heatmap_shim_label_out< SHIM_29 >( file, col++, cell_width );
   #endif
 
   // Output rows.
@@ -4549,7 +5094,7 @@ void heatmap_out( std::ofstream &file )
   heatmap_summary_row_out( file, row++, cell_width, "Average", false );
   heatmap_summary_row_out( file, row++, cell_width, "Geomean", true );
 
-  file << "  <text x='1195' y='"<< 140 + cell_rows * 32 + 5 + 6
+  file << "  <text x='1195' y='"<< 150 + cell_rows * 32 + 5 + 6
        <<    "' text-anchor='end'>&#10013; Relies on tombstones or a tombstone-like mechanism</text>\n"
   ;
 
@@ -4640,88 +5185,120 @@ void csv_shim_out( std::ofstream &file )
 template< typename blueprint, benchmark_ids benchmark_id > void csv_blueprint_out( std::ofstream &file )
 {
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   csv_shim_out< SHIM_1, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   csv_shim_out< SHIM_2, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   csv_shim_out< SHIM_3, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   csv_shim_out< SHIM_4, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   csv_shim_out< SHIM_5, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   csv_shim_out< SHIM_6, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   csv_shim_out< SHIM_7, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   csv_shim_out< SHIM_8, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   csv_shim_out< SHIM_9, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   csv_shim_out< SHIM_10, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   csv_shim_out< SHIM_11, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   csv_shim_out< SHIM_12, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   csv_shim_out< SHIM_13, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   csv_shim_out< SHIM_14, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   csv_shim_out< SHIM_15, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   csv_shim_out< SHIM_16, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   csv_shim_out< SHIM_17, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   csv_shim_out< SHIM_18, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   csv_shim_out< SHIM_19, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   csv_shim_out< SHIM_20, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   csv_shim_out< SHIM_21, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   csv_shim_out< SHIM_22, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   csv_shim_out< SHIM_23, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   csv_shim_out< SHIM_24, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   csv_shim_out< SHIM_25, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   csv_shim_out< SHIM_26, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   csv_shim_out< SHIM_27, blueprint, benchmark_id >( file );
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   csv_shim_out< SHIM_28, blueprint, benchmark_id >( file );
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  csv_shim_out< SHIM_29, blueprint, benchmark_id >( file );
   #endif
 }
 
@@ -4813,183 +5390,365 @@ void csv_out( std::string &file_id )
 
 // Program entry.
 
-int main()
+int main( int argc, char *argv[] )
 {
+  // Collect all enabled shim labels for validation.
+  std::set< std::string > all_shim_labels;
+  #ifdef SHIM_1
+  all_shim_labels.insert( SHIM_1< void >::label );
+  #endif
+  #ifdef SHIM_2
+  all_shim_labels.insert( SHIM_2< void >::label );
+  #endif
+  #ifdef SHIM_3
+  all_shim_labels.insert( SHIM_3< void >::label );
+  #endif
+  #ifdef SHIM_4
+  all_shim_labels.insert( SHIM_4< void >::label );
+  #endif
+  #ifdef SHIM_5
+  all_shim_labels.insert( SHIM_5< void >::label );
+  #endif
+  #ifdef SHIM_6
+  all_shim_labels.insert( SHIM_6< void >::label );
+  #endif
+  #ifdef SHIM_7
+  all_shim_labels.insert( SHIM_7< void >::label );
+  #endif
+  #ifdef SHIM_8
+  all_shim_labels.insert( SHIM_8< void >::label );
+  #endif
+  #ifdef SHIM_9
+  all_shim_labels.insert( SHIM_9< void >::label );
+  #endif
+  #ifdef SHIM_10
+  all_shim_labels.insert( SHIM_10< void >::label );
+  #endif
+  #ifdef SHIM_11
+  all_shim_labels.insert( SHIM_11< void >::label );
+  #endif
+  #ifdef SHIM_12
+  all_shim_labels.insert( SHIM_12< void >::label );
+  #endif
+  #ifdef SHIM_13
+  all_shim_labels.insert( SHIM_13< void >::label );
+  #endif
+  #ifdef SHIM_14
+  all_shim_labels.insert( SHIM_14< void >::label );
+  #endif
+  #ifdef SHIM_15
+  all_shim_labels.insert( SHIM_15< void >::label );
+  #endif
+  #ifdef SHIM_16
+  all_shim_labels.insert( SHIM_16< void >::label );
+  #endif
+  #ifdef SHIM_17
+  all_shim_labels.insert( SHIM_17< void >::label );
+  #endif
+  #ifdef SHIM_18
+  all_shim_labels.insert( SHIM_18< void >::label );
+  #endif
+  #ifdef SHIM_19
+  all_shim_labels.insert( SHIM_19< void >::label );
+  #endif
+  #ifdef SHIM_20
+  all_shim_labels.insert( SHIM_20< void >::label );
+  #endif
+  #ifdef SHIM_21
+  all_shim_labels.insert( SHIM_21< void >::label );
+  #endif
+  #ifdef SHIM_22
+  all_shim_labels.insert( SHIM_22< void >::label );
+  #endif
+  #ifdef SHIM_23
+  all_shim_labels.insert( SHIM_23< void >::label );
+  #endif
+  #ifdef SHIM_24
+  all_shim_labels.insert( SHIM_24< void >::label );
+  #endif
+  #ifdef SHIM_25
+  all_shim_labels.insert( SHIM_25< void >::label );
+  #endif
+  #ifdef SHIM_26
+  all_shim_labels.insert( SHIM_26< void >::label );
+  #endif
+  #ifdef SHIM_27
+  all_shim_labels.insert( SHIM_27< void >::label );
+  #endif
+  #ifdef SHIM_28
+  all_shim_labels.insert( SHIM_28< void >::label );
+  #endif
+  #ifdef SHIM_29
+  all_shim_labels.insert( SHIM_29< void >::label );
+  #endif
+
+  // Parse command-line arguments as table names to run.
+  bool has_errors = false;
+  for( int i = 1; i < argc; ++i )
+  {
+    if( all_shim_labels.count( argv[i] ) )
+      shims_filter.insert( argv[i] );
+    else
+    {
+      std::cerr << "Error: unknown table '" << argv[i] << "'\n";
+      std::cerr << "Available tables:";
+      for( auto &l : all_shim_labels )
+        std::cerr << " " << l;
+      std::cerr << "\n";
+      has_errors = true;
+    }
+  }
+
+  if( has_errors )
+    return 1;
+
+  if( !shims_filter.empty() )
+  {
+    std::cout << "Running only:";
+    for( auto &s : shims_filter )
+      std::cout << " " << s;
+    std::cout << "\n";
+  }
+
   for( unsigned int run = 0; run < RUN_COUNT; ++run )
   {
     std::cout << "Run " << run << '\n';
 
     #ifdef SHIM_1
+    if( shim_active< SHIM_1 >() )
     benchmarks< SHIM_1 >( run );
     #endif
     #ifdef SHIM_2
+    if( shim_active< SHIM_2 >() )
     benchmarks< SHIM_2 >( run );
     #endif
     #ifdef SHIM_3
+    if( shim_active< SHIM_3 >() )
     benchmarks< SHIM_3 >( run );
     #endif
     #ifdef SHIM_4
+    if( shim_active< SHIM_4 >() )
     benchmarks< SHIM_4 >( run );
     #endif
     #ifdef SHIM_5
+    if( shim_active< SHIM_5 >() )
     benchmarks< SHIM_5 >( run );
     #endif
     #ifdef SHIM_6
+    if( shim_active< SHIM_6 >() )
     benchmarks< SHIM_6 >( run );
     #endif
     #ifdef SHIM_7
+    if( shim_active< SHIM_7 >() )
     benchmarks< SHIM_7 >( run );
     #endif
     #ifdef SHIM_8
+    if( shim_active< SHIM_8 >() )
     benchmarks< SHIM_8 >( run );
     #endif
     #ifdef SHIM_9
+    if( shim_active< SHIM_9 >() )
     benchmarks< SHIM_9 >( run );
     #endif
     #ifdef SHIM_10
+    if( shim_active< SHIM_10 >() )
     benchmarks< SHIM_10 >( run );
     #endif
     #ifdef SHIM_11
+    if( shim_active< SHIM_11 >() )
     benchmarks< SHIM_11 >( run );
     #endif
     #ifdef SHIM_12
+    if( shim_active< SHIM_12 >() )
     benchmarks< SHIM_12 >( run );
     #endif
     #ifdef SHIM_13
+    if( shim_active< SHIM_13 >() )
     benchmarks< SHIM_13 >( run );
     #endif
     #ifdef SHIM_14
+    if( shim_active< SHIM_14 >() )
     benchmarks< SHIM_14 >( run );
     #endif
     #ifdef SHIM_15
+    if( shim_active< SHIM_15 >() )
     benchmarks< SHIM_15 >( run );
     #endif
     #ifdef SHIM_16
+    if( shim_active< SHIM_16 >() )
     benchmarks< SHIM_16 >( run );
     #endif
     #ifdef SHIM_17
+    if( shim_active< SHIM_17 >() )
     benchmarks< SHIM_17 >( run );
     #endif
     #ifdef SHIM_18
+    if( shim_active< SHIM_18 >() )
     benchmarks< SHIM_18 >( run );
     #endif
     #ifdef SHIM_19
+    if( shim_active< SHIM_19 >() )
     benchmarks< SHIM_19 >( run );
     #endif
     #ifdef SHIM_20
+    if( shim_active< SHIM_20 >() )
     benchmarks< SHIM_20 >( run );
     #endif
     #ifdef SHIM_21
+    if( shim_active< SHIM_21 >() )
     benchmarks< SHIM_21 >( run );
     #endif
     #ifdef SHIM_22
+    if( shim_active< SHIM_22 >() )
     benchmarks< SHIM_22 >( run );
     #endif
     #ifdef SHIM_23
+    if( shim_active< SHIM_23 >() )
     benchmarks< SHIM_23 >( run );
     #endif
     #ifdef SHIM_24
+    if( shim_active< SHIM_24 >() )
     benchmarks< SHIM_24 >( run );
     #endif
     #ifdef SHIM_25
+    if( shim_active< SHIM_25 >() )
     benchmarks< SHIM_25 >( run );
     #endif
     #ifdef SHIM_26
+    if( shim_active< SHIM_26 >() )
     benchmarks< SHIM_26 >( run );
     #endif
     #ifdef SHIM_27
+    if( shim_active< SHIM_27 >() )
     benchmarks< SHIM_27 >( run );
     #endif
     #ifdef SHIM_28
+    if( shim_active< SHIM_28 >() )
     benchmarks< SHIM_28 >( run );
+    #endif
+    #ifdef SHIM_29
+    if( shim_active< SHIM_29 >() )
+    benchmarks< SHIM_29 >( run );
     #endif
   }
 
   std::cout << "Measuring memory\n";
 
   #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() )
   measure_memories< SHIM_1 >();
   #endif
   #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() )
   measure_memories< SHIM_2 >();
   #endif
   #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() )
   measure_memories< SHIM_3 >();
   #endif
   #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() )
   measure_memories< SHIM_4 >();
   #endif
   #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() )
   measure_memories< SHIM_5 >();
   #endif
   #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() )
   measure_memories< SHIM_6 >();
   #endif
   #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() )
   measure_memories< SHIM_7 >();
   #endif
   #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() )
   measure_memories< SHIM_8 >();
   #endif
   #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() )
   measure_memories< SHIM_9 >();
   #endif
   #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() )
   measure_memories< SHIM_10 >();
   #endif
   #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() )
   measure_memories< SHIM_11 >();
   #endif
   #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() )
   measure_memories< SHIM_12 >();
   #endif
   #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() )
   measure_memories< SHIM_13 >();
   #endif
   #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() )
   measure_memories< SHIM_14 >();
   #endif
   #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() )
   measure_memories< SHIM_15 >();
   #endif
   #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() )
   measure_memories< SHIM_16 >();
   #endif
   #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() )
   measure_memories< SHIM_17 >();
   #endif
   #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() )
   measure_memories< SHIM_18 >();
   #endif
   #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() )
   measure_memories< SHIM_19 >();
   #endif
   #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() )
   measure_memories< SHIM_20 >();
   #endif
   #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() )
   measure_memories< SHIM_21 >();
   #endif
   #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() )
   measure_memories< SHIM_22 >();
   #endif
   #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() )
   measure_memories< SHIM_23 >();
   #endif
   #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() )
   measure_memories< SHIM_24 >();
   #endif
   #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() )
   measure_memories< SHIM_25 >();
   #endif
   #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() )
   measure_memories< SHIM_26 >();
   #endif
   #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() )
   measure_memories< SHIM_27 >();
   #endif
   #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() )
   measure_memories< SHIM_28 >();
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() )
+  measure_memories< SHIM_29 >();
   #endif
 
   std::cout << "Outputting results\n";
@@ -5004,6 +5763,178 @@ int main()
   html_out( time_str );
 
   csv_out( time_str );
+
+  // Print markdown summary table.
+  {
+    constexpr int MAX_SHIMS = 29;
+    const char *labels[ MAX_SHIMS ];
+    double avg_values[ MAX_SHIMS ];
+    double geo_values[ MAX_SHIMS ];
+    int shim_count = 0;
+
+    auto collect_shim = [&]( const char *label, auto collect_fn ) {
+      double sum = 0, log_sum = 0;
+      int count = 0;
+      collect_fn( sum, log_sum, count );
+      labels[ shim_count ] = label;
+      avg_values[ shim_count ] = sum / count;
+      geo_values[ shim_count ] = std::exp( log_sum / count );
+      shim_count++;
+    };
+
+    #ifdef SHIM_1
+    if( shim_active< SHIM_1 >() )
+    collect_shim( SHIM_1< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_1 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_2
+    if( shim_active< SHIM_2 >() )
+    collect_shim( SHIM_2< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_2 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_3
+    if( shim_active< SHIM_3 >() )
+    collect_shim( SHIM_3< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_3 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_4
+    if( shim_active< SHIM_4 >() )
+    collect_shim( SHIM_4< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_4 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_5
+    if( shim_active< SHIM_5 >() )
+    collect_shim( SHIM_5< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_5 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_6
+    if( shim_active< SHIM_6 >() )
+    collect_shim( SHIM_6< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_6 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_7
+    if( shim_active< SHIM_7 >() )
+    collect_shim( SHIM_7< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_7 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_8
+    if( shim_active< SHIM_8 >() )
+    collect_shim( SHIM_8< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_8 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_9
+    if( shim_active< SHIM_9 >() )
+    collect_shim( SHIM_9< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_9 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_10
+    if( shim_active< SHIM_10 >() )
+    collect_shim( SHIM_10< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_10 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_11
+    if( shim_active< SHIM_11 >() )
+    collect_shim( SHIM_11< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_11 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_12
+    if( shim_active< SHIM_12 >() )
+    collect_shim( SHIM_12< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_12 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_13
+    if( shim_active< SHIM_13 >() )
+    collect_shim( SHIM_13< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_13 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_14
+    if( shim_active< SHIM_14 >() )
+    collect_shim( SHIM_14< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_14 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_15
+    if( shim_active< SHIM_15 >() )
+    collect_shim( SHIM_15< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_15 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_16
+    if( shim_active< SHIM_16 >() )
+    collect_shim( SHIM_16< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_16 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_17
+    if( shim_active< SHIM_17 >() )
+    collect_shim( SHIM_17< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_17 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_18
+    if( shim_active< SHIM_18 >() )
+    collect_shim( SHIM_18< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_18 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_19
+    if( shim_active< SHIM_19 >() )
+    collect_shim( SHIM_19< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_19 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_20
+    if( shim_active< SHIM_20 >() )
+    collect_shim( SHIM_20< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_20 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_21
+    if( shim_active< SHIM_21 >() )
+    collect_shim( SHIM_21< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_21 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_22
+    if( shim_active< SHIM_22 >() )
+    collect_shim( SHIM_22< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_22 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_23
+    if( shim_active< SHIM_23 >() )
+    collect_shim( SHIM_23< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_23 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_24
+    if( shim_active< SHIM_24 >() )
+    collect_shim( SHIM_24< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_24 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_25
+    if( shim_active< SHIM_25 >() )
+    collect_shim( SHIM_25< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_25 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_26
+    if( shim_active< SHIM_26 >() )
+    collect_shim( SHIM_26< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_26 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_27
+    if( shim_active< SHIM_27 >() )
+    collect_shim( SHIM_27< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_27 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_28
+    if( shim_active< SHIM_28 >() )
+    collect_shim( SHIM_28< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_28 >( s, l, c ); } );
+    #endif
+    #ifdef SHIM_29
+    if( shim_active< SHIM_29 >() )
+    collect_shim( SHIM_29< void >::label, []( double &s, double &l, int &c ) { heatmap_collect_all< SHIM_29 >( s, l, c ); } );
+    #endif
+
+    if( shim_count > 0 )
+    {
+      std::ostringstream fmt;
+      fmt << std::fixed << std::setprecision( 2 );
+
+      size_t first_col_w = 7;
+      std::vector< size_t > col_w( shim_count );
+      std::vector< std::string > avg_str( shim_count ), geo_str( shim_count );
+      for( int i = 0; i < shim_count; ++i )
+      {
+        fmt.str( "" ); fmt << avg_values[i]; avg_str[i] = fmt.str();
+        fmt.str( "" ); fmt << geo_values[i]; geo_str[i] = fmt.str();
+        col_w[i] = std::strlen( labels[i] );
+        if( avg_str[i].size() > col_w[i] ) col_w[i] = avg_str[i].size();
+        if( geo_str[i].size() > col_w[i] ) col_w[i] = geo_str[i].size();
+      }
+
+      auto pad = []( const std::string &s, size_t w ) {
+        return s + std::string( w > s.size() ? w - s.size() : 0, ' ' );
+      };
+
+      std::cout << "\n| " << pad( "", first_col_w ) << " |";
+      for( int i = 0; i < shim_count; ++i )
+        std::cout << " " << pad( labels[i], col_w[i] ) << " |";
+      std::cout << "\n| " << std::string( first_col_w, '-' ) << " |";
+      for( int i = 0; i < shim_count; ++i )
+        std::cout << " " << std::string( col_w[i], '-' ) << " |";
+      std::cout << "\n| " << pad( "Average", first_col_w ) << " |";
+      for( int i = 0; i < shim_count; ++i )
+        std::cout << " " << pad( avg_str[i], col_w[i] ) << " |";
+      std::cout << "\n| " << pad( "Geomean", first_col_w ) << " |";
+      for( int i = 0; i < shim_count; ++i )
+        std::cout << " " << pad( geo_str[i], col_w[i] ) << " |";
+      std::cout << "\n\n";
+    }
+  }
 
   std::cout << "Optimization preventer: " << do_not_optimize << "\n";
   std::cout << "Done\n";
