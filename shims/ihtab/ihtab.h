@@ -15,6 +15,7 @@ typedef size_t ihtab_hash_t;
 static constexpr unsigned int IHTAB_GROUP_SIZE = 8;
 static constexpr unsigned char IHTAB_EMPTY_H7 = 0x80;
 static constexpr unsigned char IHTAB_DELETED_H7 = 0xfe;
+static constexpr ihtab_ind_t IHTAB_ENTRY_DELETED = ~(ihtab_ind_t) 0;
 static constexpr unsigned int IHTAB_LF_FACTOR = 1;
 static constexpr unsigned int IHTAB_LF_DIVISOR = 2;
 
@@ -127,13 +128,16 @@ struct ihtab_t {
 #endif
         ihtab_size_t slot = group_ind * IHTAB_GROUP_SIZE + bit;
         ihtab_ind_t el_ind = bin.entries[slot];
-        if (eq_fn (bin.els[el_ind], el)) {
+        if (el_ind == IHTAB_ENTRY_DELETED) {
+          if (first_deleted_slot == ~(ihtab_size_t) 0)
+            first_deleted_slot = slot;
+        } else if (eq_fn (bin.els[el_ind], el)) {
           if (action != IHTAB_DELETE) {
             *res = &bin.els[el_ind];
           } else {
             htab->els_num--;
             bin.deleted[el_ind / 8] |= 1 << (el_ind % 8);
-            group_h7[bit] = IHTAB_DELETED_H7;
+            bin.entries[slot] = IHTAB_ENTRY_DELETED;
           }
           return true;
         }
@@ -160,18 +164,6 @@ struct ihtab_t {
           bin.els_bound++;
         }
         return false;
-      }
-
-      if ((action == IHTAB_INSERT || action == IHTAB_REPLACE)
-	  && first_deleted_slot == ~(ihtab_size_t) 0) {
-        uint64_t del_mask = ihtab_match_mask (group, IHTAB_DELETED_H7);
-        if (del_mask) {
-	  unsigned int bit = __builtin_ctzll (del_mask);
-#ifdef IHTAB_USE_SWAR
-	  bit /= 8;
-#endif
-          first_deleted_slot = group_ind * IHTAB_GROUP_SIZE + bit;
-        }
       }
 
       group_ind = (group_ind + 1) & bin.groups_mask;
