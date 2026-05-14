@@ -31,6 +31,10 @@ static FORCE_INLINE uint64_t ihtab_match_mask (ihtab_group_t g, unsigned char h7
   __m128i h7_vec = _mm_set1_epi8 ((char) h7_val);
   return (uint64_t) _mm_movemask_epi8 (_mm_cmpeq_epi8 (g, h7_vec)) & 0xff;
 }
+static const __m128i IHTAB_EMPTY_MASK = _mm_set1_epi8 ((char) 0x80);
+static FORCE_INLINE uint64_t ihtab_match_empty (ihtab_group_t g) {
+  return (uint64_t) _mm_movemask_epi8 (_mm_and_si128 (g, IHTAB_EMPTY_MASK)) & 0xff;
+}
 
 #elif defined(__aarch64__) || defined(_M_ARM64)
 
@@ -45,6 +49,9 @@ static FORCE_INLINE uint64_t ihtab_match_mask (ihtab_group_t g, unsigned char h7
   static const uint8x8_t bit_mask = {1, 2, 4, 8, 16, 32, 64, 128};
   return (uint64_t) vaddv_u8 (vand_u8 (match_eq, bit_mask));
 }
+static FORCE_INLINE uint64_t ihtab_match_empty (ihtab_group_t g) {
+  return ihtab_match_mask (g, IHTAB_EMPTY_H7);
+}
 
 #else
 
@@ -58,6 +65,9 @@ static FORCE_INLINE ihtab_group_t ihtab_group_load (const unsigned char *p) {
 static FORCE_INLINE uint64_t ihtab_match_mask (ihtab_group_t g, unsigned char h7_val) {
   uint64_t cmp = g ^ (IHTAB_SWAR_LSB * h7_val);
   return (cmp - IHTAB_SWAR_LSB) & ~cmp & IHTAB_SWAR_MSB;
+}
+static FORCE_INLINE uint64_t ihtab_match_empty (ihtab_group_t g) {
+  return ihtab_match_mask (g, IHTAB_EMPTY_H7);
 }
 
 #endif
@@ -144,7 +154,7 @@ struct ihtab_t {
         match_mask &= match_mask - 1;
       }
 
-      uint64_t empty_mask = ihtab_match_mask (group, IHTAB_EMPTY_H7);
+      uint64_t empty_mask = ihtab_match_empty (group);
       if (empty_mask) {
         if (action == IHTAB_INSERT || action == IHTAB_REPLACE) {
           htab->els_num++;
