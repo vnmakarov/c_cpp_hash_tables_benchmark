@@ -67,7 +67,7 @@ static FORCE_INLINE uint64_t ihtab_match_mask (ihtab_group_t g, unsigned char h7
   return (cmp - IHTAB_SWAR_LSB) & ~cmp & IHTAB_SWAR_MSB;
 }
 static FORCE_INLINE uint64_t ihtab_match_empty (ihtab_group_t g) {
-  return ihtab_match_mask (g, IHTAB_EMPTY_H7);
+  return g & IHTAB_SWAR_MSB;
 }
 
 #endif
