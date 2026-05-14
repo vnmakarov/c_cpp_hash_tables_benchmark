@@ -35,31 +35,44 @@ static constexpr uint64_t IHTAB_SWAR_MSB = 0x8080808080808080ULL;
 
 #if IHTAB_USE_SSE2
 
+typedef __m128i ihtab_group_t;
+
 __attribute__((always_inline))
-static inline unsigned int ihtab_match_mask (uint64_t g, unsigned char h7_val) {
-  __m128i group = _mm_cvtsi64_si128 ((long long) g);
+static inline ihtab_group_t ihtab_group_load (const unsigned char *p) {
+  return _mm_cvtsi64_si128 (*(const long long *) p);
+}
+
+__attribute__((always_inline))
+static inline unsigned int ihtab_match_mask (ihtab_group_t g, unsigned char h7_val) {
   __m128i h7_vec = _mm_set1_epi8 ((char) h7_val);
-  return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (group, h7_vec)) & 0xff;
+  return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (g, h7_vec)) & 0xff;
 }
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_empty_mask (uint64_t g) {
-  __m128i group = _mm_cvtsi64_si128 ((long long) g);
+static inline unsigned int ihtab_empty_mask (ihtab_group_t g) {
   __m128i empty_vec = _mm_set1_epi8 ((char) IHTAB_EMPTY_H7);
-  return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (group, empty_vec)) & 0xff;
+  return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (g, empty_vec)) & 0xff;
 }
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_deleted_mask (uint64_t g) {
-  __m128i group = _mm_cvtsi64_si128 ((long long) g);
+static inline unsigned int ihtab_deleted_mask (ihtab_group_t g) {
   __m128i del_vec = _mm_set1_epi8 ((char) IHTAB_DELETED_H7);
-  return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (group, del_vec)) & 0xff;
+  return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (g, del_vec)) & 0xff;
 }
 
-#elif IHTAB_USE_NEON
+#else
+
+typedef uint64_t ihtab_group_t;
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_match_mask (uint64_t g, unsigned char h7_val) {
+static inline ihtab_group_t ihtab_group_load (const unsigned char *p) {
+  return *(const uint64_t *) p;
+}
+
+#if IHTAB_USE_NEON
+
+__attribute__((always_inline))
+static inline unsigned int ihtab_match_mask (ihtab_group_t g, unsigned char h7_val) {
   uint8x8_t group = vcreate_u8 (g);
   uint8x8_t match_eq = vceq_u8 (group, vdup_n_u8 (h7_val));
   static const uint8x8_t bit_mask = {1, 2, 4, 8, 16, 32, 64, 128};
@@ -67,7 +80,7 @@ static inline unsigned int ihtab_match_mask (uint64_t g, unsigned char h7_val) {
 }
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_empty_mask (uint64_t g) {
+static inline unsigned int ihtab_empty_mask (ihtab_group_t g) {
   uint8x8_t group = vcreate_u8 (g);
   uint8x8_t empty_eq = vceq_u8 (group, vdup_n_u8 (IHTAB_EMPTY_H7));
   static const uint8x8_t bit_mask = {1, 2, 4, 8, 16, 32, 64, 128};
@@ -75,7 +88,7 @@ static inline unsigned int ihtab_empty_mask (uint64_t g) {
 }
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_deleted_mask (uint64_t g) {
+static inline unsigned int ihtab_deleted_mask (ihtab_group_t g) {
   uint8x8_t group = vcreate_u8 (g);
   uint8x8_t del_eq = vceq_u8 (group, vdup_n_u8 (IHTAB_DELETED_H7));
   static const uint8x8_t bit_mask = {1, 2, 4, 8, 16, 32, 64, 128};
@@ -85,26 +98,27 @@ static inline unsigned int ihtab_deleted_mask (uint64_t g) {
 #elif IHTAB_USE_SWAR
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_match_mask (uint64_t g, unsigned char h7_val) {
+static inline unsigned int ihtab_match_mask (ihtab_group_t g, unsigned char h7_val) {
   uint64_t cmp = g ^ (IHTAB_SWAR_LSB * h7_val);
   uint64_t matches = (cmp - IHTAB_SWAR_LSB) & ~cmp & IHTAB_SWAR_MSB;
   return (unsigned int) ((matches >> 7) * IHTAB_SWAR_LSB >> 56);
 }
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_empty_mask (uint64_t g) {
+static inline unsigned int ihtab_empty_mask (ihtab_group_t g) {
   uint64_t cmp = g ^ (IHTAB_SWAR_LSB * IHTAB_EMPTY_H7);
   uint64_t matches = (cmp - IHTAB_SWAR_LSB) & ~cmp & IHTAB_SWAR_MSB;
   return (unsigned int) ((matches >> 7) * IHTAB_SWAR_LSB >> 56);
 }
 
 __attribute__((always_inline))
-static inline unsigned int ihtab_deleted_mask (uint64_t g) {
+static inline unsigned int ihtab_deleted_mask (ihtab_group_t g) {
   uint64_t cmp = g ^ (IHTAB_SWAR_LSB * IHTAB_DELETED_H7);
   uint64_t matches = (cmp - IHTAB_SWAR_LSB) & ~cmp & IHTAB_SWAR_MSB;
   return (unsigned int) ((matches >> 7) * IHTAB_SWAR_LSB >> 56);
 }
 
+#endif
 #endif
 
 template<typename El>
@@ -162,7 +176,7 @@ struct ihtab_t {
 
     for (;;) {
       unsigned char *group_h7 = bin.h7 + group_ind * IHTAB_GROUP_SIZE;
-      uint64_t group = *(const uint64_t *) group_h7;
+      ihtab_group_t group = ihtab_group_load (group_h7);
       unsigned int match_mask = ihtab_match_mask (group, h7_val);
       while (match_mask) {
         unsigned int bit = __builtin_ctz (match_mask);
