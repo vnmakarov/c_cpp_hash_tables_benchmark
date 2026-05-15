@@ -20,7 +20,7 @@ static constexpr unsigned int IHTAB_LF_FACTOR = 1;
 static constexpr unsigned int IHTAB_LF_DIVISOR = 2;
 
 
-#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+#if !defined(IHTAB_USE_SWAR) && (defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86))
 
 #include <immintrin.h>
 static const bool mask_scale = false;
@@ -37,7 +37,7 @@ static FORCE_INLINE uint64_t ihtab_match_empty (ihtab_group_t g) {
   return (uint64_t) _mm_movemask_epi8 (_mm_and_si128 (g, IHTAB_EMPTY_MASK)) & 0xff;
 }
 
-#elif defined(__aarch64__) || defined(_M_ARM64)
+#elif !defined(IHTAB_USE_SWAR) && (defined(__aarch64__) || defined(_M_ARM64))
 
 #include <arm_neon.h>
 static const bool mask_scale = false;
