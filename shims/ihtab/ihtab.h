@@ -23,6 +23,7 @@ static constexpr unsigned int IHTAB_LF_DIVISOR = 2;
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
 
 #include <immintrin.h>
+static const bool mask_scale = false;
 typedef __m128i ihtab_group_t;
 static FORCE_INLINE ihtab_group_t ihtab_group_load (const unsigned char *p) {
   return _mm_cvtsi64_si128 (*(const long long *) p);
@@ -39,9 +40,10 @@ static FORCE_INLINE uint64_t ihtab_match_empty (ihtab_group_t g) {
 #elif defined(__aarch64__) || defined(_M_ARM64)
 
 #include <arm_neon.h>
+static const bool mask_scale = false;
 typedef uint64_t ihtab_group_t;
 static FORCE_INLINE ihtab_group_t ihtab_group_load (const unsigned char *p) {
-  return *(const uint64_t *) p;
+  return *(const ihtab_group_t *) p;
 }
 static FORCE_INLINE uint64_t ihtab_match_mask (ihtab_group_t g, unsigned char h7_val) {
   uint8x8_t group = vcreate_u8 (g);
@@ -55,7 +57,7 @@ static FORCE_INLINE uint64_t ihtab_match_empty (ihtab_group_t g) {
 
 #else
 
-#define IHTAB_USE_SWAR
+static const bool mask_scale = true;
 static constexpr uint64_t IHTAB_SWAR_LSB = 0x0101010101010101ULL;
 static constexpr uint64_t IHTAB_SWAR_MSB = 0x8080808080808080ULL;
 typedef uint64_t ihtab_group_t;
@@ -133,9 +135,7 @@ struct ihtab_t {
       uint64_t match_mask = ihtab_match_mask (group, h7_val);
       while (match_mask) {
         unsigned int bit = __builtin_ctzll (match_mask);
-#ifdef IHTAB_USE_SWAR
-	bit /= 8;
-#endif
+	if (mask_scale) bit /= 8;
         ihtab_size_t slot = group_ind * IHTAB_GROUP_SIZE + bit;
         ihtab_ind_t el_ind = bin.entries[slot];
         if (el_ind == IHTAB_ENTRY_DELETED) {
@@ -163,9 +163,7 @@ struct ihtab_t {
             slot = first_deleted_slot;
           } else {
             unsigned int bit = __builtin_ctzll (empty_mask);
-#ifdef IHTAB_USE_SWAR
-	    bit /= 8;
-#endif
+	    if (mask_scale) bit /= 8;
             slot = group_ind * IHTAB_GROUP_SIZE + bit;
           }
           bin.h7[slot] = h7_val;
