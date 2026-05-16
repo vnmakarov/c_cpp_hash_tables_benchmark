@@ -119,9 +119,8 @@ struct ihtab_t {
     htab->els_num = 0;
   }
 
-  __attribute__((always_inline))
-  static bool do_1 (ihtab_t *htab, hbin_ihtab_t<El> &bin, El &el,
-                    enum ihtab_action action, El **res) {
+  static FORCE_INLINE bool do_1 (ihtab_t *htab, hbin_ihtab_t<El> &bin, El &el,
+				 enum ihtab_action action, El **res) {
     Hash hash_fn;
     Eq eq_fn;
     ihtab_hash_t hash = hash_fn (el);
@@ -207,8 +206,7 @@ struct ihtab_t {
     htab->bin = resize_bin;
   }
 
-  __attribute__((always_inline))
-  static bool do_ (ihtab_t *htab, El &el, enum ihtab_action action, El **res) {
+  static FORCE_INLINE bool do_ (ihtab_t *htab, El &el, enum ihtab_action action, El **res) {
     ihtab_size_t entries_size = (htab->bin.groups_mask + 1) * IHTAB_GROUP_SIZE;
     ihtab_size_t els_size = entries_size * IHTAB_LF_FACTOR / IHTAB_LF_DIVISOR;
     if (action != IHTAB_DELETE && __builtin_expect(htab->bin.els_bound >= els_size, 0))
@@ -225,8 +223,7 @@ struct ihtab_t {
     El *ptr;
   };
 
-  __attribute__((always_inline))
-  static void iter_advance (ihtab_t *htab, iterator &it) {
+  static FORCE_INLINE void iter_advance (ihtab_t *htab, iterator &it) {
     while (it.el_idx < htab->bin.els_bound) {
       if (!(htab->bin.deleted[it.el_idx / 8] & (1 << (it.el_idx % 8)))) {
         it.ptr = &htab->bin.els[it.el_idx];
@@ -237,8 +234,7 @@ struct ihtab_t {
     it.ptr = nullptr;
   }
 
-  __attribute__((always_inline))
-  static iterator iter_begin (ihtab_t *htab) {
+  static FORCE_INLINE iterator iter_begin (ihtab_t *htab) {
     iterator it;
     it.el_idx = 0;
     it.ptr = nullptr;
@@ -246,13 +242,11 @@ struct ihtab_t {
     return it;
   }
 
-  __attribute__((always_inline))
-  static bool iter_valid (iterator &it) {
+  static FORCE_INLINE bool iter_valid (iterator &it) {
     return it.ptr != nullptr;
   }
 
-  __attribute__((always_inline))
-  static void iter_next (ihtab_t *htab, iterator &it) {
+  static FORCE_INLINE void iter_next (ihtab_t *htab, iterator &it) {
     ++it.el_idx;
     iter_advance (htab, it);
   }
