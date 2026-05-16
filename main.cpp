@@ -3174,18 +3174,9 @@ void heatmap_compute_max_label () {
 template< template< typename > typename shim >
 void heatmap_shim_label_out( std::ofstream &file, unsigned int col, double cell_width )
 {
-  const char *label = shim< void >::label;
-  size_t len = std::strlen( label );
-  size_t total_pad = heatmap_max_label_len > len ? heatmap_max_label_len - len : 0;
-  size_t pad_before = total_pad / 2;
-  size_t pad_after = total_pad - pad_before;
-  double cx = 240 + ( col + 0.5 ) * cell_width + 5;
-  std::string before, after;
-  for( size_t i = 0; i < pad_before; ++i ) before += "&#160;";
-  for( size_t i = 0; i < pad_after; ++i ) after += "&#160;";
-  file << "  <text x='" << cx << "' y='85' text-anchor='end' "
-       <<     "transform='rotate(-45 " << cx << " 85)'>"
-       << before << label << after
+  double cx = 240 + ( col + 0.5 ) * cell_width;
+  file << "  <text x='" << cx << "' y='120' text-anchor='start' "
+       <<     "transform='rotate(-45 " << cx << " 120)'>" << shim< void >::label
        << "</text>\n"
   ;
 }
