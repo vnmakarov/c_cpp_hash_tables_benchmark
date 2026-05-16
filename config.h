@@ -89,4 +89,4 @@
 #define SHIM_26 eht_simd
 #define SHIM_27 ht_simd_nm
 #define SHIM_28 ihtab
-#define SHIM_29 ht_swar
+#define SHIM_29 ihtab_hybr
