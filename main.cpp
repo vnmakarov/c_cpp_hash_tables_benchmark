@@ -3075,9 +3075,9 @@ template< benchmark_ids benchmark_id > void graphs_out( std::ofstream &file )
 template< template< typename > typename shim >
 void heatmap_shim_label_out( std::ofstream &file, unsigned int col, double cell_width )
 {
-  double cx = 240 + ( col + 0.5 ) * cell_width;
-  file << "  <text x='" << cx << "' y='127' text-anchor='end' "
-       <<     "transform='rotate(-45 " << cx << " 37)'>" << shim< void >::label
+  double cx = 240 + ( col + 0.5 ) * cell_width + 5;
+  file << "  <text x='" << cx << "' y='85' text-anchor='end' "
+       <<     "transform='rotate(-45 " << cx << " 85)'>" << shim< void >::label
        << "</text>\n"
   ;
 }
