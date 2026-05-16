@@ -6,6 +6,8 @@
 #include <cstring>
 #include <cassert>
 
+#define FORCE_INLINE __attribute__((always_inline)) inline
+
 typedef uint16_t eht_simd_ind_t;
 typedef size_t eht_simd_hash_t;
 typedef unsigned short eht_simd_depth_t;
@@ -27,20 +29,17 @@ enum eht_simd_action { EHT_SIMD_FIND, EHT_SIMD_INSERT, EHT_SIMD_REPLACE, EHT_SIM
 static const bool eht_simd_mask_scale = false;
 typedef __m128i eht_simd_group_t;
 
-__attribute__((always_inline))
-static inline eht_simd_group_t eht_simd_group_load (const unsigned char *p) {
+static FORCE_INLINE eht_simd_group_t eht_simd_group_load (const unsigned char *p) {
   return _mm_cvtsi64_si128 (*(const long long *) p);
 }
 
-__attribute__((always_inline))
-static inline unsigned int eht_simd_match_mask (eht_simd_group_t g,
+static FORCE_INLINE unsigned int eht_simd_match_mask (eht_simd_group_t g,
                                                 unsigned char h7_val) {
   __m128i h7_vec = _mm_set1_epi8 ((char) h7_val);
   return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (g, h7_vec)) & 0xff;
 }
 
-__attribute__((always_inline))
-static inline unsigned int eht_simd_match_empty (eht_simd_group_t g) {
+static FORCE_INLINE unsigned int eht_simd_match_empty (eht_simd_group_t g) {
   return (unsigned int) _mm_movemask_epi8 (g) & 0xff;
 }
 
@@ -50,13 +49,11 @@ static inline unsigned int eht_simd_match_empty (eht_simd_group_t g) {
 static const bool eht_simd_mask_scale = false;
 typedef uint64_t eht_simd_group_t;
 
-__attribute__((always_inline))
-static inline eht_simd_group_t eht_simd_group_load (const unsigned char *p) {
+static FORCE_INLINE eht_simd_group_t eht_simd_group_load (const unsigned char *p) {
   return *(const uint64_t *) p;
 }
 
-__attribute__((always_inline))
-static inline unsigned int eht_simd_match_mask (eht_simd_group_t g,
+static FORCE_INLINE unsigned int eht_simd_match_mask (eht_simd_group_t g,
                                                 unsigned char h7_val) {
   uint8x8_t group = vcreate_u8 (g);
   uint8x8_t match_eq = vceq_u8 (group, vdup_n_u8 (h7_val));
@@ -64,8 +61,7 @@ static inline unsigned int eht_simd_match_mask (eht_simd_group_t g,
   return (unsigned int) vaddv_u8 (vand_u8 (match_eq, bit_mask));
 }
 
-__attribute__((always_inline))
-static inline unsigned int eht_simd_match_empty (eht_simd_group_t g) {
+static FORCE_INLINE unsigned int eht_simd_match_empty (eht_simd_group_t g) {
   return eht_simd_match_mask (g, EHT_SIMD_EMPTY_H7);
 }
 
@@ -76,20 +72,17 @@ static constexpr uint64_t EHT_SIMD_SWAR_LSB = 0x0101010101010101ULL;
 static constexpr uint64_t EHT_SIMD_SWAR_MSB = 0x8080808080808080ULL;
 typedef uint64_t eht_simd_group_t;
 
-__attribute__((always_inline))
-static inline eht_simd_group_t eht_simd_group_load (const unsigned char *p) {
+static FORCE_INLINE eht_simd_group_t eht_simd_group_load (const unsigned char *p) {
   return *(const uint64_t *) p;
 }
 
-__attribute__((always_inline))
-static inline uint64_t eht_simd_match_mask (eht_simd_group_t g,
+static FORCE_INLINE uint64_t eht_simd_match_mask (eht_simd_group_t g,
                                             unsigned char h7_val) {
   uint64_t cmp = g ^ (EHT_SIMD_SWAR_LSB * h7_val);
   return (cmp - EHT_SIMD_SWAR_LSB) & ~cmp & EHT_SIMD_SWAR_MSB;
 }
 
-__attribute__((always_inline))
-static inline uint64_t eht_simd_match_empty (eht_simd_group_t g) {
+static FORCE_INLINE uint64_t eht_simd_match_empty (eht_simd_group_t g) {
   return g & EHT_SIMD_SWAR_MSB;
 }
 
@@ -184,8 +177,7 @@ struct eht_simd_t {
     htab->els_num = 0;
   }
 
-  __attribute__((always_inline))
-  static inline bool do_1 (eht_simd_t *htab, ebin_simd_t<El> &bin, eht_simd_hash_t hash, El &el,
+  static FORCE_INLINE bool do_1 (eht_simd_t *htab, ebin_simd_t<El> &bin, eht_simd_hash_t hash, El &el,
                            enum eht_simd_action action, El **res) {
     Eq eq_fn;
     unsigned char h7_val = (hash >> (sizeof (size_t) * 8 - 7)) & 0x7f;
@@ -292,8 +284,7 @@ struct eht_simd_t {
     std::memset (nb.deleted, 0, ((nb.groups_mask + 1) * EHT_SIMD_GROUP_SIZE / 2 + 7) / 8);
   }
 
-  __attribute__((always_inline))
-  static bool do_ (eht_simd_t *htab, El &el, enum eht_simd_action action, El **res) {
+  static FORCE_INLINE bool do_ (eht_simd_t *htab, El &el, enum eht_simd_action action, El **res) {
     Hash hash_fn;
     eht_simd_hash_t hash = hash_fn (el);
     if (hash == 0) hash = 1;
@@ -345,8 +336,7 @@ struct eht_simd_t {
     El *ptr;
   };
 
-  __attribute__((always_inline))
-  static void iter_advance (eht_simd_t *htab, iterator &it) {
+  static FORCE_INLINE void iter_advance (eht_simd_t *htab, iterator &it) {
     while (it.bin_idx < htab->bins_num) {
       auto &bin = htab->bins[it.bin_idx];
       while (it.el_idx < bin.els_bound) {
@@ -363,8 +353,7 @@ struct eht_simd_t {
     it.ptr = nullptr;
   }
 
-  __attribute__((always_inline))
-  static iterator iter_begin (eht_simd_t *htab) {
+  static FORCE_INLINE iterator iter_begin (eht_simd_t *htab) {
     iterator it;
     it.bin_idx = 0;
     it.el_idx = htab->bins_num > 0 ? htab->bins[0].els_start : 0;
@@ -373,13 +362,11 @@ struct eht_simd_t {
     return it;
   }
 
-  __attribute__((always_inline))
-  static bool iter_valid (iterator &it) {
+  static FORCE_INLINE bool iter_valid (iterator &it) {
     return it.ptr != nullptr;
   }
 
-  __attribute__((always_inline))
-  static void iter_next (eht_simd_t *htab, iterator &it) {
+  static FORCE_INLINE void iter_next (eht_simd_t *htab, iterator &it) {
     ++it.el_idx;
     iter_advance (htab, it);
   }
