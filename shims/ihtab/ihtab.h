@@ -219,6 +219,43 @@ struct ihtab_t {
   static ihtab_size_t size (ihtab_t *htab) {
     return (htab->bin.groups_mask + 1) * IHTAB_GROUP_SIZE * IHTAB_LF_FACTOR / IHTAB_LF_DIVISOR;
   }
+
+  struct iterator {
+    ihtab_size_t el_idx;
+    El *ptr;
+  };
+
+  __attribute__((always_inline))
+  static void iter_advance (ihtab_t *htab, iterator &it) {
+    while (it.el_idx < htab->bin.els_bound) {
+      if (!(htab->bin.deleted[it.el_idx / 8] & (1 << (it.el_idx % 8)))) {
+        it.ptr = &htab->bin.els[it.el_idx];
+        return;
+      }
+      ++it.el_idx;
+    }
+    it.ptr = nullptr;
+  }
+
+  __attribute__((always_inline))
+  static iterator iter_begin (ihtab_t *htab) {
+    iterator it;
+    it.el_idx = 0;
+    it.ptr = nullptr;
+    iter_advance (htab, it);
+    return it;
+  }
+
+  __attribute__((always_inline))
+  static bool iter_valid (iterator &it) {
+    return it.ptr != nullptr;
+  }
+
+  __attribute__((always_inline))
+  static void iter_next (ihtab_t *htab, iterator &it) {
+    ++it.el_idx;
+    iter_advance (htab, it);
+  }
 };
 
 #endif /* #ifndef IHTAB_H */

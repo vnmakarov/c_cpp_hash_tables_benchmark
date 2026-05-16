@@ -28,32 +28,13 @@ template< typename blueprint > struct ihtab
 
   using tab = ihtab_t< entry, hash, eq >;
   using table_type = tab;
-
-  struct itr_type
-  {
-    ihtab_size_t el_idx;
-    entry *entry_ptr;
-  };
+  using itr_type = typename tab::iterator;
 
   static table_type create_table()
   {
     table_type table;
     tab::create( &table, 8 );
     return table;
-  }
-
-  static void advance_itr( table_type &table, itr_type &itr )
-  {
-    while( itr.el_idx < table.bin.els_bound )
-    {
-      if( !( table.bin.deleted[itr.el_idx / 8] & ( 1 << ( itr.el_idx % 8 ) ) ) )
-      {
-        itr.entry_ptr = &table.bin.els[itr.el_idx];
-        return;
-      }
-      ++itr.el_idx;
-    }
-    itr.entry_ptr = nullptr;
   }
 
   static itr_type find( table_type &table, const typename blueprint::key_type &key )
@@ -63,7 +44,7 @@ template< typename blueprint > struct ihtab
     entry *res;
     bool found = tab::do_( &table, temp, IHTAB_FIND, &res );
     itr_type itr;
-    itr.entry_ptr = found ? res : nullptr;
+    itr.ptr = found ? res : nullptr;
     itr.el_idx = 0;
     return itr;
   }
@@ -89,32 +70,27 @@ template< typename blueprint > struct ihtab
 
   static itr_type begin_itr( table_type &table )
   {
-    itr_type itr;
-    itr.el_idx = 0;
-    itr.entry_ptr = nullptr;
-    advance_itr( table, itr );
-    return itr;
+    return tab::iter_begin( &table );
   }
 
   static bool is_itr_valid( table_type &table, itr_type &itr )
   {
-    return itr.entry_ptr != nullptr;
+    return tab::iter_valid( itr );
   }
 
   static void increment_itr( table_type &table, itr_type &itr )
   {
-    ++itr.el_idx;
-    advance_itr( table, itr );
+    tab::iter_next( &table, itr );
   }
 
   static const typename blueprint::key_type &get_key_from_itr( table_type &table, itr_type &itr )
   {
-    return itr.entry_ptr->key;
+    return itr.ptr->key;
   }
 
   static const typename blueprint::value_type &get_value_from_itr( table_type &table, itr_type &itr )
   {
-    return itr.entry_ptr->value;
+    return itr.ptr->value;
   }
 
   static void destroy_table( table_type &table )
