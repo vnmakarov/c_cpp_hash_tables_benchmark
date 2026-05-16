@@ -3072,12 +3072,120 @@ template< benchmark_ids benchmark_id > void graphs_out( std::ofstream &file )
   #endif
 }
 
+static size_t heatmap_max_label_len = 0;
+
+template< template< typename > typename shim >
+void heatmap_update_max_label () {
+  size_t len = std::strlen( shim< void >::label );
+  if( len > heatmap_max_label_len ) heatmap_max_label_len = len;
+}
+
+void heatmap_compute_max_label () {
+  heatmap_max_label_len = 0;
+  #ifdef SHIM_1
+  if( shim_active< SHIM_1 >() ) heatmap_update_max_label< SHIM_1 >();
+  #endif
+  #ifdef SHIM_2
+  if( shim_active< SHIM_2 >() ) heatmap_update_max_label< SHIM_2 >();
+  #endif
+  #ifdef SHIM_3
+  if( shim_active< SHIM_3 >() ) heatmap_update_max_label< SHIM_3 >();
+  #endif
+  #ifdef SHIM_4
+  if( shim_active< SHIM_4 >() ) heatmap_update_max_label< SHIM_4 >();
+  #endif
+  #ifdef SHIM_5
+  if( shim_active< SHIM_5 >() ) heatmap_update_max_label< SHIM_5 >();
+  #endif
+  #ifdef SHIM_6
+  if( shim_active< SHIM_6 >() ) heatmap_update_max_label< SHIM_6 >();
+  #endif
+  #ifdef SHIM_7
+  if( shim_active< SHIM_7 >() ) heatmap_update_max_label< SHIM_7 >();
+  #endif
+  #ifdef SHIM_8
+  if( shim_active< SHIM_8 >() ) heatmap_update_max_label< SHIM_8 >();
+  #endif
+  #ifdef SHIM_9
+  if( shim_active< SHIM_9 >() ) heatmap_update_max_label< SHIM_9 >();
+  #endif
+  #ifdef SHIM_10
+  if( shim_active< SHIM_10 >() ) heatmap_update_max_label< SHIM_10 >();
+  #endif
+  #ifdef SHIM_11
+  if( shim_active< SHIM_11 >() ) heatmap_update_max_label< SHIM_11 >();
+  #endif
+  #ifdef SHIM_12
+  if( shim_active< SHIM_12 >() ) heatmap_update_max_label< SHIM_12 >();
+  #endif
+  #ifdef SHIM_13
+  if( shim_active< SHIM_13 >() ) heatmap_update_max_label< SHIM_13 >();
+  #endif
+  #ifdef SHIM_14
+  if( shim_active< SHIM_14 >() ) heatmap_update_max_label< SHIM_14 >();
+  #endif
+  #ifdef SHIM_15
+  if( shim_active< SHIM_15 >() ) heatmap_update_max_label< SHIM_15 >();
+  #endif
+  #ifdef SHIM_16
+  if( shim_active< SHIM_16 >() ) heatmap_update_max_label< SHIM_16 >();
+  #endif
+  #ifdef SHIM_17
+  if( shim_active< SHIM_17 >() ) heatmap_update_max_label< SHIM_17 >();
+  #endif
+  #ifdef SHIM_18
+  if( shim_active< SHIM_18 >() ) heatmap_update_max_label< SHIM_18 >();
+  #endif
+  #ifdef SHIM_19
+  if( shim_active< SHIM_19 >() ) heatmap_update_max_label< SHIM_19 >();
+  #endif
+  #ifdef SHIM_20
+  if( shim_active< SHIM_20 >() ) heatmap_update_max_label< SHIM_20 >();
+  #endif
+  #ifdef SHIM_21
+  if( shim_active< SHIM_21 >() ) heatmap_update_max_label< SHIM_21 >();
+  #endif
+  #ifdef SHIM_22
+  if( shim_active< SHIM_22 >() ) heatmap_update_max_label< SHIM_22 >();
+  #endif
+  #ifdef SHIM_23
+  if( shim_active< SHIM_23 >() ) heatmap_update_max_label< SHIM_23 >();
+  #endif
+  #ifdef SHIM_24
+  if( shim_active< SHIM_24 >() ) heatmap_update_max_label< SHIM_24 >();
+  #endif
+  #ifdef SHIM_25
+  if( shim_active< SHIM_25 >() ) heatmap_update_max_label< SHIM_25 >();
+  #endif
+  #ifdef SHIM_26
+  if( shim_active< SHIM_26 >() ) heatmap_update_max_label< SHIM_26 >();
+  #endif
+  #ifdef SHIM_27
+  if( shim_active< SHIM_27 >() ) heatmap_update_max_label< SHIM_27 >();
+  #endif
+  #ifdef SHIM_28
+  if( shim_active< SHIM_28 >() ) heatmap_update_max_label< SHIM_28 >();
+  #endif
+  #ifdef SHIM_29
+  if( shim_active< SHIM_29 >() ) heatmap_update_max_label< SHIM_29 >();
+  #endif
+}
+
 template< template< typename > typename shim >
 void heatmap_shim_label_out( std::ofstream &file, unsigned int col, double cell_width )
 {
+  const char *label = shim< void >::label;
+  size_t len = std::strlen( label );
+  size_t total_pad = heatmap_max_label_len > len ? heatmap_max_label_len - len : 0;
+  size_t pad_before = total_pad / 2;
+  size_t pad_after = total_pad - pad_before;
   double cx = 240 + ( col + 0.5 ) * cell_width + 5;
+  std::string before, after;
+  for( size_t i = 0; i < pad_before; ++i ) before += "&#160;";
+  for( size_t i = 0; i < pad_after; ++i ) after += "&#160;";
   file << "  <text x='" << cx << "' y='85' text-anchor='end' "
-       <<     "transform='rotate(-45 " << cx << " 85)'>" << shim< void >::label
+       <<     "transform='rotate(-45 " << cx << " 85)'>"
+       << before << label << after
        << "</text>\n"
   ;
 }
@@ -4421,6 +4529,7 @@ void memory_heatmap_out( std::ofstream &file )
                "(lower/lighter is better)</text>\n"
   ;
 
+  heatmap_compute_max_label ();
   unsigned int col = 0;
   #ifdef SHIM_1
   if( shim_active< SHIM_1 >() )
@@ -4944,6 +5053,7 @@ void heatmap_out( std::ofstream &file )
 
   // Output shim labels.
 
+  heatmap_compute_max_label ();
   unsigned int col = 0;
 
   #ifdef SHIM_1
