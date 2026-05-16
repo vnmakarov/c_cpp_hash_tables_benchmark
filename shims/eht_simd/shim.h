@@ -28,40 +28,13 @@ template< typename blueprint > struct eht_simd
 
   using tab = eht_simd_t< entry, hash, eq >;
   using table_type = tab;
-
-  struct itr_type
-  {
-    unsigned int bin_idx;
-    unsigned int el_idx;
-    entry *entry_ptr;
-  };
+  using itr_type = typename tab::iterator;
 
   static table_type create_table()
   {
     table_type table;
     tab::create( &table, 8 );
     return table;
-  }
-
-  static void advance_itr( table_type &table, itr_type &itr )
-  {
-    while( itr.bin_idx < table.bins_num )
-    {
-      auto &bin = table.bins[itr.bin_idx];
-      while( itr.el_idx < bin.els_bound )
-      {
-        if( !( bin.deleted[itr.el_idx / 8] & ( 1 << ( itr.el_idx % 8 ) ) ) )
-        {
-          itr.entry_ptr = &bin.els[itr.el_idx];
-          return;
-        }
-        ++itr.el_idx;
-      }
-      ++itr.bin_idx;
-      if( itr.bin_idx < table.bins_num )
-        itr.el_idx = table.bins[itr.bin_idx].els_start;
-    }
-    itr.entry_ptr = nullptr;
   }
 
   static itr_type find( table_type &table, const typename blueprint::key_type &key )
@@ -71,7 +44,7 @@ template< typename blueprint > struct eht_simd
     entry *res;
     bool found = tab::do_( &table, temp, EHT_SIMD_FIND, &res );
     itr_type itr;
-    itr.entry_ptr = found ? res : nullptr;
+    itr.ptr = found ? res : nullptr;
     itr.bin_idx = 0;
     itr.el_idx = 0;
     return itr;
@@ -98,33 +71,27 @@ template< typename blueprint > struct eht_simd
 
   static itr_type begin_itr( table_type &table )
   {
-    itr_type itr;
-    itr.bin_idx = 0;
-    itr.el_idx = table.bins_num > 0 ? table.bins[0].els_start : 0;
-    itr.entry_ptr = nullptr;
-    advance_itr( table, itr );
-    return itr;
+    return tab::iter_begin( &table );
   }
 
   static bool is_itr_valid( table_type &table, itr_type &itr )
   {
-    return itr.entry_ptr != nullptr;
+    return tab::iter_valid( itr );
   }
 
   static void increment_itr( table_type &table, itr_type &itr )
   {
-    ++itr.el_idx;
-    advance_itr( table, itr );
+    tab::iter_next( &table, itr );
   }
 
   static const typename blueprint::key_type &get_key_from_itr( table_type &table, itr_type &itr )
   {
-    return itr.entry_ptr->key;
+    return itr.ptr->key;
   }
 
   static const typename blueprint::value_type &get_value_from_itr( table_type &table, itr_type &itr )
   {
-    return itr.entry_ptr->value;
+    return itr.ptr->value;
   }
 
   static void destroy_table( table_type &table )

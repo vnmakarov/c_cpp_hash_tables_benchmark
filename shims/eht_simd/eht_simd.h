@@ -6,80 +6,91 @@
 #include <cstring>
 #include <cassert>
 
-#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
-#include <immintrin.h>
-#define EHT_SIMD_USE_SSE2 1
-static constexpr unsigned int EHT_SIMD_GROUP_SIZE = 8;
-#elif defined(__aarch64__) || defined(_M_ARM64)
-#include <arm_neon.h>
-#define EHT_SIMD_USE_NEON 1
-static constexpr unsigned int EHT_SIMD_GROUP_SIZE = 8;
-#else
-#error "eht_simd requires SSE2 or NEON"
-#endif
-
 typedef uint16_t eht_simd_ind_t;
 typedef size_t eht_simd_hash_t;
 typedef unsigned short eht_simd_depth_t;
 typedef unsigned int ebin_simd_ind_t;
 
+static constexpr unsigned int EHT_SIMD_GROUP_SIZE = 8;
 static constexpr unsigned char EHT_SIMD_EMPTY_H7 = 0x80;
 static constexpr unsigned char EHT_SIMD_DELETED_H7 = 0xfe;
+static constexpr eht_simd_ind_t EHT_SIMD_ENTRY_DELETED = ~(eht_simd_ind_t) 0;
 static constexpr unsigned int EHT_SIMD_MAX_BIN_SIZE_POWER = 15;
 
 static_assert (EHT_SIMD_MAX_BIN_SIZE_POWER <= 15, "bin size must fit in uint16_t entries");
 
 enum eht_simd_action { EHT_SIMD_FIND, EHT_SIMD_INSERT, EHT_SIMD_REPLACE, EHT_SIMD_DELETE };
 
-#if EHT_SIMD_USE_SSE2
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+
+#include <immintrin.h>
+static const bool eht_simd_mask_scale = false;
+typedef __m128i eht_simd_group_t;
 
 __attribute__((always_inline))
-static inline unsigned int eht_simd_match_mask (const unsigned char *group_h7,
+static inline eht_simd_group_t eht_simd_group_load (const unsigned char *p) {
+  return _mm_cvtsi64_si128 (*(const long long *) p);
+}
+
+__attribute__((always_inline))
+static inline unsigned int eht_simd_match_mask (eht_simd_group_t g,
                                                 unsigned char h7_val) {
-  __m128i group = _mm_loadl_epi64 ((const __m128i *) group_h7);
   __m128i h7_vec = _mm_set1_epi8 ((char) h7_val);
-  return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (group, h7_vec)) & 0xff;
+  return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (g, h7_vec)) & 0xff;
 }
 
 __attribute__((always_inline))
-static inline unsigned int eht_simd_empty_mask (const unsigned char *group_h7) {
-  __m128i group = _mm_loadl_epi64 ((const __m128i *) group_h7);
-  __m128i empty_vec = _mm_set1_epi8 ((char) EHT_SIMD_EMPTY_H7);
-  return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (group, empty_vec)) & 0xff;
+static inline unsigned int eht_simd_match_empty (eht_simd_group_t g) {
+  return (unsigned int) _mm_movemask_epi8 (g) & 0xff;
+}
+
+#elif defined(__aarch64__) || defined(_M_ARM64)
+
+#include <arm_neon.h>
+static const bool eht_simd_mask_scale = false;
+typedef uint64_t eht_simd_group_t;
+
+__attribute__((always_inline))
+static inline eht_simd_group_t eht_simd_group_load (const unsigned char *p) {
+  return *(const uint64_t *) p;
 }
 
 __attribute__((always_inline))
-static inline unsigned int eht_simd_deleted_mask (const unsigned char *group_h7) {
-  __m128i group = _mm_loadl_epi64 ((const __m128i *) group_h7);
-  __m128i del_vec = _mm_set1_epi8 ((char) EHT_SIMD_DELETED_H7);
-  return (unsigned int) _mm_movemask_epi8 (_mm_cmpeq_epi8 (group, del_vec)) & 0xff;
-}
-
-#elif EHT_SIMD_USE_NEON
-
-__attribute__((always_inline))
-static inline unsigned int eht_simd_match_mask (const unsigned char *group_h7,
+static inline unsigned int eht_simd_match_mask (eht_simd_group_t g,
                                                 unsigned char h7_val) {
-  uint8x8_t group = vld1_u8 (group_h7);
+  uint8x8_t group = vcreate_u8 (g);
   uint8x8_t match_eq = vceq_u8 (group, vdup_n_u8 (h7_val));
   static const uint8x8_t bit_mask = {1, 2, 4, 8, 16, 32, 64, 128};
   return (unsigned int) vaddv_u8 (vand_u8 (match_eq, bit_mask));
 }
 
 __attribute__((always_inline))
-static inline unsigned int eht_simd_empty_mask (const unsigned char *group_h7) {
-  uint8x8_t group = vld1_u8 (group_h7);
-  uint8x8_t empty_eq = vceq_u8 (group, vdup_n_u8 (EHT_SIMD_EMPTY_H7));
-  static const uint8x8_t bit_mask = {1, 2, 4, 8, 16, 32, 64, 128};
-  return (unsigned int) vaddv_u8 (vand_u8 (empty_eq, bit_mask));
+static inline unsigned int eht_simd_match_empty (eht_simd_group_t g) {
+  return eht_simd_match_mask (g, EHT_SIMD_EMPTY_H7);
+}
+
+#else
+
+static const bool eht_simd_mask_scale = true;
+static constexpr uint64_t EHT_SIMD_SWAR_LSB = 0x0101010101010101ULL;
+static constexpr uint64_t EHT_SIMD_SWAR_MSB = 0x8080808080808080ULL;
+typedef uint64_t eht_simd_group_t;
+
+__attribute__((always_inline))
+static inline eht_simd_group_t eht_simd_group_load (const unsigned char *p) {
+  return *(const uint64_t *) p;
 }
 
 __attribute__((always_inline))
-static inline unsigned int eht_simd_deleted_mask (const unsigned char *group_h7) {
-  uint8x8_t group = vld1_u8 (group_h7);
-  uint8x8_t del_eq = vceq_u8 (group, vdup_n_u8 (EHT_SIMD_DELETED_H7));
-  static const uint8x8_t bit_mask = {1, 2, 4, 8, 16, 32, 64, 128};
-  return (unsigned int) vaddv_u8 (vand_u8 (del_eq, bit_mask));
+static inline uint64_t eht_simd_match_mask (eht_simd_group_t g,
+                                            unsigned char h7_val) {
+  uint64_t cmp = g ^ (EHT_SIMD_SWAR_LSB * h7_val);
+  return (cmp - EHT_SIMD_SWAR_LSB) & ~cmp & EHT_SIMD_SWAR_MSB;
+}
+
+__attribute__((always_inline))
+static inline uint64_t eht_simd_match_empty (eht_simd_group_t g) {
+  return g & EHT_SIMD_SWAR_MSB;
 }
 
 #endif
@@ -183,25 +194,30 @@ struct eht_simd_t {
 
     for (;;) {
       unsigned char *group_h7 = bin.h7 + group_ind * EHT_SIMD_GROUP_SIZE;
-      unsigned int match_mask = eht_simd_match_mask (group_h7, h7_val);
+      eht_simd_group_t group = eht_simd_group_load (group_h7);
+      auto match_mask = eht_simd_match_mask (group, h7_val);
       while (match_mask) {
-        unsigned int bit = __builtin_ctz (match_mask);
+        unsigned int bit = __builtin_ctzll (match_mask);
+        if (eht_simd_mask_scale) bit /= 8;
         unsigned int slot = group_ind * EHT_SIMD_GROUP_SIZE + bit;
         eht_simd_ind_t el_ind = bin.entries[slot];
-        if (eq_fn (bin.els[el_ind], el)) {
+        if (el_ind == EHT_SIMD_ENTRY_DELETED) {
+          if (first_deleted_slot == ~0u)
+            first_deleted_slot = slot;
+        } else if (eq_fn (bin.els[el_ind], el)) {
           if (action != EHT_SIMD_DELETE) {
             *res = &bin.els[el_ind];
           } else {
             htab->els_num--;
             bin.deleted[el_ind / 8] |= 1 << (el_ind % 8);
-            group_h7[bit] = EHT_SIMD_DELETED_H7;
+            bin.entries[slot] = EHT_SIMD_ENTRY_DELETED;
           }
           return true;
         }
         match_mask &= match_mask - 1;
       }
 
-      unsigned int empty_mask = eht_simd_empty_mask (group_h7);
+      auto empty_mask = eht_simd_match_empty (group);
       if (empty_mask) {
         if (action == EHT_SIMD_INSERT || action == EHT_SIMD_REPLACE) {
           htab->els_num++;
@@ -209,7 +225,8 @@ struct eht_simd_t {
           if (first_deleted_slot != ~0u) {
             slot = first_deleted_slot;
           } else {
-            unsigned int bit = __builtin_ctz (empty_mask);
+            unsigned int bit = __builtin_ctzll (empty_mask);
+            if (eht_simd_mask_scale) bit /= 8;
             slot = group_ind * EHT_SIMD_GROUP_SIZE + bit;
           }
           bin.h7[slot] = h7_val;
@@ -218,14 +235,6 @@ struct eht_simd_t {
           bin.els_bound++;
         }
         return false;
-      }
-
-      if (first_deleted_slot == ~0u) {
-        unsigned int del_mask = eht_simd_deleted_mask (group_h7);
-        if (del_mask) {
-          unsigned int bit = __builtin_ctz (del_mask);
-          first_deleted_slot = group_ind * EHT_SIMD_GROUP_SIZE + bit;
-        }
       }
 
       group_ind = (group_ind + 1) & bin.groups_mask;
@@ -277,6 +286,10 @@ struct eht_simd_t {
         break;
       }
     }
+    auto &ob = htab->bins[bin_ind];
+    std::memset (ob.deleted, 0, ((ob.groups_mask + 1) * EHT_SIMD_GROUP_SIZE / 2 + 7) / 8);
+    auto &nb = htab->bins[new_ind];
+    std::memset (nb.deleted, 0, ((nb.groups_mask + 1) * EHT_SIMD_GROUP_SIZE / 2 + 7) / 8);
   }
 
   __attribute__((always_inline))
@@ -301,10 +314,10 @@ struct eht_simd_t {
         bin_ind = htab->dir[hash & htab->bin_mask];
       } else {
         auto &b = htab->bins[bin_ind];
-        b.els = (El *) std::realloc (b.els, els_size * sizeof (El));
+        char *old_deleted = b.deleted;
         unsigned int del_bytes = (els_size + 7) / 8;
-        b.deleted = (char *) std::realloc (b.deleted, del_bytes);
-        std::memset (b.deleted, 0, del_bytes);
+        b.deleted = (char *) std::calloc (del_bytes, 1);
+        b.els = (El *) std::realloc (b.els, els_size * sizeof (El));
         b.h7 = (unsigned char *) std::realloc (b.h7, entries_size);
         std::memset (b.h7, EHT_SIMD_EMPTY_H7, entries_size);
         b.entries = (eht_simd_ind_t *) std::realloc (b.entries,
@@ -314,16 +327,61 @@ struct eht_simd_t {
         b.els_start = b.els_bound = 0;
         htab->els_num = 0;
         for (unsigned int i = start; i < bound; i++) {
-          if (b.deleted[i / 8] & (1 << (i % 8))) continue;
+          if (old_deleted[i / 8] & (1 << (i % 8))) continue;
           eht_simd_hash_t hash2 = hash_fn (b.els[i]);
           if (hash2 == 0) hash2 = 1;
           El *r;
           do_1 (htab, b, hash2, b.els[i], EHT_SIMD_INSERT, &r);
           *r = b.els[i];
         }
+        std::free (old_deleted);
       }
     }
     return do_1 (htab, htab->bins[bin_ind], hash, el, action, res);
+  }
+  struct iterator {
+    unsigned int bin_idx;
+    unsigned int el_idx;
+    El *ptr;
+  };
+
+  __attribute__((always_inline))
+  static void iter_advance (eht_simd_t *htab, iterator &it) {
+    while (it.bin_idx < htab->bins_num) {
+      auto &bin = htab->bins[it.bin_idx];
+      while (it.el_idx < bin.els_bound) {
+        if (!(bin.deleted[it.el_idx / 8] & (1 << (it.el_idx % 8)))) {
+          it.ptr = &bin.els[it.el_idx];
+          return;
+        }
+        ++it.el_idx;
+      }
+      ++it.bin_idx;
+      if (it.bin_idx < htab->bins_num)
+        it.el_idx = htab->bins[it.bin_idx].els_start;
+    }
+    it.ptr = nullptr;
+  }
+
+  __attribute__((always_inline))
+  static iterator iter_begin (eht_simd_t *htab) {
+    iterator it;
+    it.bin_idx = 0;
+    it.el_idx = htab->bins_num > 0 ? htab->bins[0].els_start : 0;
+    it.ptr = nullptr;
+    iter_advance (htab, it);
+    return it;
+  }
+
+  __attribute__((always_inline))
+  static bool iter_valid (iterator &it) {
+    return it.ptr != nullptr;
+  }
+
+  __attribute__((always_inline))
+  static void iter_next (eht_simd_t *htab, iterator &it) {
+    ++it.el_idx;
+    iter_advance (htab, it);
   }
 };
 
