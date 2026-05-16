@@ -78,7 +78,7 @@ enum ihtab_action { IHTAB_FIND, IHTAB_INSERT, IHTAB_REPLACE, IHTAB_DELETE };
 
 template<typename El>
 struct hbin_ihtab_t {
-  ihtab_size_t els_start, els_bound;
+  ihtab_size_t els_bound;
   El *els;
   char *deleted;
   unsigned char *h7;
@@ -97,7 +97,7 @@ struct ihtab_t {
     ihtab_size_t els_size = entries_size * IHTAB_LF_FACTOR / IHTAB_LF_DIVISOR;
     htab->els_num = 0;
     auto &b = htab->bin;
-    b.els_start = b.els_bound = 0;
+    b.els_bound = 0;
     b.els = (El *) std::malloc (els_size * sizeof (El));
     ihtab_size_t del_bytes = (els_size + 7) / 8;
     b.deleted = (char *) std::calloc (del_bytes, 1);
@@ -193,10 +193,10 @@ struct ihtab_t {
     std::memset (resize_bin.h7, IHTAB_EMPTY_H7, entries_size);
     resize_bin.entries = (ihtab_ind_t *) std::malloc (entries_size * sizeof (ihtab_ind_t));
     resize_bin.groups_mask = entries_size / IHTAB_GROUP_SIZE - 1;
-    resize_bin.els_start = resize_bin.els_bound = 0;
+    resize_bin.els_bound = 0;
     ihtab_size_t bound = htab->bin.els_bound;
     ihtab_size_t saved_els_num = htab->els_num;
-    for (ihtab_size_t i = htab->bin.els_start; i < bound; i++)
+    for (ihtab_size_t i = 0; i < bound; i++)
       if (!(htab->bin.deleted[i / 8] & (1 << (i % 8)))) {
         El *r;
         do_1 (htab, resize_bin, htab->bin.els[i], IHTAB_INSERT, &r);

@@ -90,7 +90,7 @@ template< typename blueprint > struct ihtab
   static itr_type begin_itr( table_type &table )
   {
     itr_type itr;
-    itr.el_idx = table.bin.els_start;
+    itr.el_idx = 0;
     itr.entry_ptr = nullptr;
     advance_itr( table, itr );
     return itr;
