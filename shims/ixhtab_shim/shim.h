@@ -1,8 +1,8 @@
 // c_cpp_hash_tables_benchmark/shims/ixhtab/shim.h
 
-#include "ixhtab.h"
+#include "ixhtab.hpp"
 
-template< typename blueprint > struct ixhtab
+template< typename blueprint > struct ixhtab_shim
 {
   struct entry
   {
@@ -26,15 +26,13 @@ template< typename blueprint > struct ixhtab
     }
   };
 
-  using tab = ixhtab_t< entry, hash, eq >;
+  using tab = ixhtab< entry, hash, eq >;
   using table_type = tab;
   using itr_type = typename tab::iterator;
 
   static table_type create_table()
   {
-    table_type table;
-    tab::create( &table, 8 );
-    return table;
+    return table_type( 8 );
   }
 
   static itr_type find( table_type &table, const typename blueprint::key_type &key )
@@ -42,7 +40,7 @@ template< typename blueprint > struct ixhtab
     entry temp;
     temp.key = key;
     entry *res;
-    bool found = tab::do_( &table, temp, IXHTAB_FIND, &res );
+    bool found = table.perform( temp, IXHTAB_FIND, &res );
     itr_type itr;
     itr.ptr = found ? res : nullptr;
     itr.bin_idx = 0;
@@ -56,7 +54,7 @@ template< typename blueprint > struct ixhtab
     temp.key = key;
     temp.value = typename blueprint::value_type();
     entry *res;
-    bool found = tab::do_( &table, temp, IXHTAB_INSERT, &res );
+    bool found = table.perform( temp, IXHTAB_INSERT, &res );
     if( !found )
       *res = temp;
   }
@@ -66,12 +64,12 @@ template< typename blueprint > struct ixhtab
     entry temp;
     temp.key = key;
     entry *res;
-    tab::do_( &table, temp, IXHTAB_DELETE, &res );
+    table.perform( temp, IXHTAB_DELETE, &res );
   }
 
   static itr_type begin_itr( table_type &table )
   {
-    return tab::iter_begin( &table );
+    return table.iter_begin();
   }
 
   static bool is_itr_valid( table_type &table, itr_type &itr )
@@ -81,7 +79,7 @@ template< typename blueprint > struct ixhtab
 
   static void increment_itr( table_type &table, itr_type &itr )
   {
-    tab::iter_next( &table, itr );
+    table.iter_next( itr );
   }
 
   static const typename blueprint::key_type &get_key_from_itr( table_type &table, itr_type &itr )
@@ -96,11 +94,11 @@ template< typename blueprint > struct ixhtab
 
   static void destroy_table( table_type &table )
   {
-    tab::destroy( &table );
+    // destructor handles cleanup
   }
 };
 
-template<> struct ixhtab< void >
+template<> struct ixhtab_shim< void >
 {
   static constexpr const char *label = "ixhtab";
   static constexpr const char *color = "rgb( 150, 80, 200 )";

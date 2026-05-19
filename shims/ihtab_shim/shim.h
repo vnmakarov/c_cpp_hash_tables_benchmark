@@ -1,8 +1,8 @@
 // c_cpp_hash_tables_benchmark/shims/ihtab/shim.h
 
-#include "ihtab.h"
+#include "ihtab.hpp"
 
-template< typename blueprint > struct ihtab
+template< typename blueprint > struct ihtab_shim
 {
   struct entry
   {
@@ -26,15 +26,13 @@ template< typename blueprint > struct ihtab
     }
   };
 
-  using tab = ihtab_t< entry, hash, eq >;
+  using tab = ihtab< entry, hash, eq >;
   using table_type = tab;
   using itr_type = typename tab::iterator;
 
   static table_type create_table()
   {
-    table_type table;
-    tab::create( &table, 8 );
-    return table;
+    return table_type( 8 );
   }
 
   static itr_type find( table_type &table, const typename blueprint::key_type &key )
@@ -42,7 +40,7 @@ template< typename blueprint > struct ihtab
     entry temp;
     temp.key = key;
     entry *res;
-    bool found = tab::do_( &table, temp, IHTAB_FIND, &res );
+    bool found = table.perform( temp, IHTAB_FIND, &res );
     itr_type itr;
     itr.ptr = found ? res : nullptr;
     itr.el_idx = 0;
@@ -55,7 +53,7 @@ template< typename blueprint > struct ihtab
     temp.key = key;
     temp.value = typename blueprint::value_type();
     entry *res;
-    bool found = tab::do_( &table, temp, IHTAB_INSERT, &res );
+    bool found = table.perform( temp, IHTAB_INSERT, &res );
     if( !found )
       *res = temp;
   }
@@ -65,12 +63,12 @@ template< typename blueprint > struct ihtab
     entry temp;
     temp.key = key;
     entry *res;
-    tab::do_( &table, temp, IHTAB_DELETE, &res );
+    table.perform( temp, IHTAB_DELETE, &res );
   }
 
   static itr_type begin_itr( table_type &table )
   {
-    return tab::iter_begin( &table );
+    return table.iter_begin();
   }
 
   static bool is_itr_valid( table_type &table, itr_type &itr )
@@ -80,7 +78,7 @@ template< typename blueprint > struct ihtab
 
   static void increment_itr( table_type &table, itr_type &itr )
   {
-    tab::iter_next( &table, itr );
+    table.iter_next( itr );
   }
 
   static const typename blueprint::key_type &get_key_from_itr( table_type &table, itr_type &itr )
@@ -95,11 +93,11 @@ template< typename blueprint > struct ihtab
 
   static void destroy_table( table_type &table )
   {
-    tab::destroy( &table );
+    // destructor handles cleanup
   }
 };
 
-template<> struct ihtab< void >
+template<> struct ihtab_shim< void >
 {
   static constexpr const char *label = "ihtab";
   static constexpr const char *color = "rgb( 30, 100, 180 )";
