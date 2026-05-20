@@ -76,9 +76,9 @@
 #define SHIM_13 stc_hmap
 #define SHIM_14 uthash
 #define SHIM_15 verstable
-#define SHIM_16 ht_e48x16_del
+#define SHIM_16 ihtab_c
 #define SHIM_17 ht_e32_h7
-#define SHIM_18 ht_e64_del
+#define SHIM_18 ixhtab_c
 #define SHIM_19 ht_e64_h7
 #define SHIM_20 eht_e16_h7
 #define SHIM_21 ht_e32_h7l
@@ -86,7 +86,7 @@
 #define SHIM_23 ht_h7_e32l
 #define SHIM_24 ht_h7simd
 #define SHIM_25 ht_simd2_nm
-#define SHIM_26 ixhtab_shim
+#define SHIM_26 ixhtab_cpp
 #define SHIM_27 ht_simd_nm
-#define SHIM_28 ihtab_shim
+#define SHIM_28 ihtab_cpp
 #define SHIM_29 ihtab_hybr

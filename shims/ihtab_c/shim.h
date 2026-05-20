@@ -1,8 +1,8 @@
-// c_cpp_hash_tables_benchmark/shims/ihtab/shim.h
+// c_cpp_hash_tables_benchmark/shims/ihtab_c/shim.h
 
-#include "ihtab.hpp"
+#include "ihtab.h"
 
-template< typename blueprint > struct ihtab_shim
+template< typename blueprint > struct ihtab_c
 {
   struct entry
   {
@@ -10,29 +10,27 @@ template< typename blueprint > struct ihtab_shim
     typename blueprint::value_type value;
   };
 
-  struct hash
+  static ihtab_hash_t hash_fn( const entry e )
   {
-    ihtab_hash_t operator()( const entry &e ) const
-    {
-      return blueprint::hash_key( e.key );
-    }
-  };
+    return blueprint::hash_key( e.key );
+  }
 
-  struct eq
+  static bool eq_fn( const entry e1, const entry e2 )
   {
-    bool operator()( const entry &e1, const entry &e2 ) const
-    {
-      return blueprint::cmpr_keys( e1.key, e2.key );
-    }
-  };
+    return blueprint::cmpr_keys( e1.key, e2.key );
+  }
 
-  using tab = ihtab< entry, hash, eq >;
-  using table_type = tab;
-  using itr_type = typename tab::iterator;
+  // Generate the ihtab types and functions
+  DEFINE_IHTAB(entry, hash_fn, eq_fn)
+
+  using table_type = struct ihtab_entry;
+  using itr_type = struct ihtab_iter_entry;
 
   static table_type create_table()
   {
-    return table_type( 8 );
+    table_type table;
+    ihtab_create_entry( &table, 8 );
+    return table;
   }
 
   static itr_type find( table_type &table, const typename blueprint::key_type &key )
@@ -40,10 +38,19 @@ template< typename blueprint > struct ihtab_shim
     entry temp;
     temp.key = key;
     entry *res;
-    bool found = table.perform( temp, IHTAB_FIND, &res );
+    bool found = ihtab_perform_entry( &table, &temp, IHTAB_C_FIND, &res );
     itr_type itr;
-    itr.ptr = found ? res : nullptr;
-    itr.el_idx = 0;
+    if( found )
+    {
+      // Find the element index for the iterator
+      itr.ptr = res;
+      itr.el_idx = res - table.bin.els;
+    }
+    else
+    {
+      itr.ptr = nullptr;
+      itr.el_idx = table.bin.els_bound;
+    }
     return itr;
   }
 
@@ -53,7 +60,7 @@ template< typename blueprint > struct ihtab_shim
     temp.key = key;
     temp.value = typename blueprint::value_type();
     entry *res;
-    bool found = table.perform( temp, IHTAB_INSERT, &res );
+    bool found = ihtab_perform_entry( &table, &temp, IHTAB_C_INSERT, &res );
     if( !found )
       *res = temp;
   }
@@ -63,22 +70,22 @@ template< typename blueprint > struct ihtab_shim
     entry temp;
     temp.key = key;
     entry *res;
-    table.perform( temp, IHTAB_DELETE, &res );
+    ihtab_perform_entry( &table, &temp, IHTAB_C_DELETE, &res );
   }
 
   static itr_type begin_itr( table_type &table )
   {
-    return table.iter_begin();
+    return ihtab_iter_begin_entry( &table );
   }
 
   static bool is_itr_valid( table_type &table, itr_type &itr )
   {
-    return tab::iter_valid( itr );
+    return ihtab_iter_valid_entry( &itr );
   }
 
   static void increment_itr( table_type &table, itr_type &itr )
   {
-    table.iter_next( itr );
+    ihtab_iter_next_entry( &table, &itr );
   }
 
   static const typename blueprint::key_type &get_key_from_itr( table_type &table, itr_type &itr )
@@ -93,13 +100,13 @@ template< typename blueprint > struct ihtab_shim
 
   static void destroy_table( table_type &table )
   {
-    // destructor handles cleanup
+    ihtab_destroy_entry( &table );
   }
 };
 
-template<> struct ihtab_shim< void >
+template<> struct ihtab_c< void >
 {
-  static constexpr const char *label = "ihtab";
+  static constexpr const char *label = "ihtab_c";
   static constexpr const char *color = "rgb( 30, 100, 180 )";
   static constexpr bool tombstone_like_mechanism = true;
 };

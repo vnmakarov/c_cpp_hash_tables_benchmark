@@ -1,8 +1,8 @@
-// c_cpp_hash_tables_benchmark/shims/ixhtab/shim.h
+// c_cpp_hash_tables_benchmark/shims/ixhtab_cpp/shim.h
 
 #include "ixhtab.hpp"
 
-template< typename blueprint > struct ixhtab_shim
+template< typename blueprint > struct ixhtab_cpp
 {
   struct entry
   {
@@ -28,7 +28,7 @@ template< typename blueprint > struct ixhtab_shim
 
   using tab = ixhtab< entry, hash, eq >;
   using table_type = tab;
-  using itr_type = typename tab::iterator;
+  using itr_type = typename tab::ixhtab_iter;
 
   static table_type create_table()
   {
@@ -41,11 +41,13 @@ template< typename blueprint > struct ixhtab_shim
     temp.key = key;
     entry *res;
     bool found = table.perform( temp, IXHTAB_FIND, &res );
-    itr_type itr;
-    itr.ptr = found ? res : nullptr;
-    itr.bin_idx = 0;
-    itr.el_idx = 0;
-    return itr;
+
+    // Create iterator directly from result - no search needed
+    itr_type it;
+    it.ptr = found ? res : nullptr;
+    it.bin_idx = 0; // Not used for find results
+    it.el_idx = 0;  // Not used for find results
+    return it;
   }
 
   static void insert( table_type &table, const typename blueprint::key_type &key )
@@ -74,7 +76,7 @@ template< typename blueprint > struct ixhtab_shim
 
   static bool is_itr_valid( table_type &table, itr_type &itr )
   {
-    return tab::iter_valid( itr );
+    return table.iter_valid( itr );
   }
 
   static void increment_itr( table_type &table, itr_type &itr )
@@ -98,9 +100,9 @@ template< typename blueprint > struct ixhtab_shim
   }
 };
 
-template<> struct ixhtab_shim< void >
+template<> struct ixhtab_cpp< void >
 {
-  static constexpr const char *label = "ixhtab";
+  static constexpr const char *label = "ixhtab_cpp";
   static constexpr const char *color = "rgb( 150, 80, 200 )";
   static constexpr bool tombstone_like_mechanism = true;
 };

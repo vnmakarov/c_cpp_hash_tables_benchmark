@@ -1,8 +1,8 @@
-// c_cpp_hash_tables_benchmark/shims/ht_e64_del/shim.h
+// c_cpp_hash_tables_benchmark/shims/ht_h7simd2/shim.h
 
-#include "ht_e64_del.h"
+#include "ht_h7simd2.h"
 
-template< typename blueprint > struct ht_e64_del
+template< typename blueprint > struct ht_h7simd2
 {
   struct entry
   {
@@ -12,7 +12,7 @@ template< typename blueprint > struct ht_e64_del
 
   struct hash
   {
-    ht_e64_del_hash_t operator()( const entry &e ) const
+    ht_h7simd2_hash_t operator()( const entry &e ) const
     {
       return blueprint::hash_key( e.key );
     }
@@ -26,12 +26,12 @@ template< typename blueprint > struct ht_e64_del
     }
   };
 
-  using tab = ht_e64_del_t< entry, hash, eq >;
+  using tab = ht_h7simd2_t< entry, hash, eq >;
   using table_type = tab;
 
   struct itr_type
   {
-    ht_e64_del_size_t el_idx;
+    ht_h7simd2_size_t el_idx;
     entry *entry_ptr;
   };
 
@@ -61,7 +61,7 @@ template< typename blueprint > struct ht_e64_del
     entry temp;
     temp.key = key;
     entry *res;
-    bool found = tab::do_( &table, temp, HT_E64_DEL_FIND, &res );
+    bool found = tab::do_( &table, temp, HT_H7SIMD2_FIND, &res );
     itr_type itr;
     itr.entry_ptr = found ? res : nullptr;
     itr.el_idx = 0;
@@ -74,7 +74,7 @@ template< typename blueprint > struct ht_e64_del
     temp.key = key;
     temp.value = typename blueprint::value_type();
     entry *res;
-    bool found = tab::do_( &table, temp, HT_E64_DEL_INSERT, &res );
+    bool found = tab::do_( &table, temp, HT_H7SIMD2_INSERT, &res );
     if( !found )
       *res = temp;
   }
@@ -84,7 +84,7 @@ template< typename blueprint > struct ht_e64_del
     entry temp;
     temp.key = key;
     entry *res;
-    tab::do_( &table, temp, HT_E64_DEL_DELETE, &res );
+    tab::do_( &table, temp, HT_H7SIMD2_DELETE, &res );
   }
 
   static itr_type begin_itr( table_type &table )
@@ -123,9 +123,9 @@ template< typename blueprint > struct ht_e64_del
   }
 };
 
-template<> struct ht_e64_del< void >
+template<> struct ht_h7simd2< void >
 {
-  static constexpr const char *label = "ht_e64_del";
-  static constexpr const char *color = "rgb( 100, 50, 200 )";
+  static constexpr const char *label = "ht_h7simd2";
+  static constexpr const char *color = "rgb( 30, 100, 180 )";
   static constexpr bool tombstone_like_mechanism = true;
 };
