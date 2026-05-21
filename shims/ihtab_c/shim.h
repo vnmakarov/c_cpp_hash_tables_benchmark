@@ -1,6 +1,6 @@
 // c_cpp_hash_tables_benchmark/shims/ihtab_c/shim.h
 
-#include "ihtab.h"
+#include "iht.h"
 
 template< typename blueprint > struct ihtab_c
 {
@@ -10,7 +10,7 @@ template< typename blueprint > struct ihtab_c
     typename blueprint::value_type value;
   };
 
-  static ihtab_hash_t hash_fn( const entry e )
+  static iht_hash_t hash_fn( const entry e )
   {
     return blueprint::hash_key( e.key );
   }
@@ -21,15 +21,15 @@ template< typename blueprint > struct ihtab_c
   }
 
   // Generate the ihtab types and functions
-  DEFINE_IHTAB(entry, hash_fn, eq_fn)
+  DEFINE_IHT(entry, hash_fn, eq_fn)
 
-  using table_type = struct ihtab_entry;
-  using itr_type = struct ihtab_iter_entry;
+  using table_type = struct iht_entry;
+  using itr_type = struct iht_iter_entry;
 
   static table_type create_table()
   {
     table_type table;
-    ihtab_create_entry( &table, 8 );
+    iht_create_entry( &table, 8 );
     return table;
   }
 
@@ -38,7 +38,7 @@ template< typename blueprint > struct ihtab_c
     entry temp;
     temp.key = key;
     entry *res;
-    bool found = ihtab_perform_entry( &table, &temp, IHTAB_C_FIND, &res );
+    bool found = iht_perform_entry( &table, &temp, IHT_FIND, &res );
     itr_type itr;
     if( found )
     {
@@ -60,7 +60,7 @@ template< typename blueprint > struct ihtab_c
     temp.key = key;
     temp.value = typename blueprint::value_type();
     entry *res;
-    bool found = ihtab_perform_entry( &table, &temp, IHTAB_C_INSERT, &res );
+    bool found = iht_perform_entry( &table, &temp, IHT_INSERT, &res );
     if( !found )
       *res = temp;
   }
@@ -70,22 +70,22 @@ template< typename blueprint > struct ihtab_c
     entry temp;
     temp.key = key;
     entry *res;
-    ihtab_perform_entry( &table, &temp, IHTAB_C_DELETE, &res );
+    iht_perform_entry( &table, &temp, IHT_DELETE, &res );
   }
 
   static itr_type begin_itr( table_type &table )
   {
-    return ihtab_iter_begin_entry( &table );
+    return iht_iter_begin_entry( &table );
   }
 
   static bool is_itr_valid( table_type &table, itr_type &itr )
   {
-    return ihtab_iter_valid_entry( &itr );
+    return iht_iter_valid_entry( &itr );
   }
 
   static void increment_itr( table_type &table, itr_type &itr )
   {
-    ihtab_iter_next_entry( &table, &itr );
+    iht_iter_next_entry( &table, &itr );
   }
 
   static const typename blueprint::key_type &get_key_from_itr( table_type &table, itr_type &itr )
@@ -100,7 +100,7 @@ template< typename blueprint > struct ihtab_c
 
   static void destroy_table( table_type &table )
   {
-    ihtab_destroy_entry( &table );
+    iht_destroy_entry( &table );
   }
 };
 
