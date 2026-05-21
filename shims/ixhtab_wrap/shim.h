@@ -2,7 +2,7 @@
 
 #include "ixhtab.hpp"
 
-template< typename blueprint > struct ixhtab_cpp
+template< typename blueprint > struct ixhtab_wrap
 {
   struct entry
   {
@@ -100,9 +100,9 @@ template< typename blueprint > struct ixhtab_cpp
   }
 };
 
-template<> struct ixhtab_cpp< void >
+template<> struct ixhtab_wrap< void >
 {
-  static constexpr const char *label = "ixhtab_cpp";
+  static constexpr const char *label = "ixhtab";
   static constexpr const char *color = "rgb( 150, 80, 200 )";
   static constexpr bool tombstone_like_mechanism = true;
 };

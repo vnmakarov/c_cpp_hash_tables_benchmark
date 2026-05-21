@@ -1,8 +1,8 @@
-// c_cpp_hash_tables_benchmark/shims/ihtab_cpp/shim.h
+// c_cpp_hash_tables_benchmark/shims/ihtab/shim.h
 
 #include "ihtab.hpp"
 
-template< typename blueprint > struct ihtab_cpp
+template< typename blueprint > struct ihtab_wrap
 {
   struct entry
   {
@@ -99,9 +99,9 @@ template< typename blueprint > struct ihtab_cpp
   }
 };
 
-template<> struct ihtab_cpp< void >
+template<> struct ihtab_wrap< void >
 {
-  static constexpr const char *label = "ihtab_cpp";
+  static constexpr const char *label = "ihtab";
   static constexpr const char *color = "rgb( 30, 100, 180 )";
   static constexpr bool tombstone_like_mechanism = true;
 };
