@@ -1,8 +1,8 @@
-// c_cpp_hash_tables_benchmark/shims/ixhtab_c/shim.h
+// c_cpp_hash_tables_benchmark/shims/ihtab_c/shim.h
 
-#include "ixht.h"
+#include "ihtab.h"
 
-template< typename blueprint > struct ixht
+template< typename blueprint > struct ihtab_c
 {
   struct entry
   {
@@ -10,7 +10,7 @@ template< typename blueprint > struct ixht
     typename blueprint::value_type value;
   };
 
-  static ixht_hash_t hash_fn( const entry e )
+  static iht_hash_t hash_fn( const entry e )
   {
     return blueprint::hash_key( e.key );
   }
@@ -20,16 +20,16 @@ template< typename blueprint > struct ixht
     return blueprint::cmpr_keys( e1.key, e2.key );
   }
 
-  // Generate the ixhtab types and functions
-  DEFINE_IXHT(entry, hash_fn, eq_fn)
+  // Generate the ihtab types and functions
+  DEFINE_IHT(entry, hash_fn, eq_fn)
 
-  using table_type = struct ixht_entry;
-  using itr_type = struct ixht_iter_entry;
+  using table_type = struct iht_entry;
+  using itr_type = struct iht_iter_entry;
 
   static table_type create_table()
   {
     table_type table;
-    ixht_create_entry( &table, 8 );
+    iht_create_entry( &table, 8 );
     return table;
   }
 
@@ -38,29 +38,18 @@ template< typename blueprint > struct ixht
     entry temp;
     temp.key = key;
     entry *res;
-    bool found = ixht_perform_entry( &table, &temp, IXHT_FIND, &res );
+    bool found = iht_perform_entry( &table, &temp, IHT_FIND, &res );
     itr_type itr;
     if( found )
     {
-      // Find the element for the iterator
+      // Find the element index for the iterator
       itr.ptr = res;
-      // Find which bin and element index this corresponds to
-      for( unsigned int bin_idx = 0; bin_idx < table.bins_num; bin_idx++ )
-      {
-        auto &bin = table.bins[bin_idx];
-        if( res >= bin.els && res < bin.els + bin.els_bound )
-        {
-          itr.bin_idx = bin_idx;
-          itr.el_idx = res - bin.els;
-          break;
-        }
-      }
+      itr.el_idx = res - table.bin.els;
     }
     else
     {
       itr.ptr = nullptr;
-      itr.bin_idx = table.bins_num;
-      itr.el_idx = 0;
+      itr.el_idx = table.bin.els_bound;
     }
     return itr;
   }
@@ -71,7 +60,7 @@ template< typename blueprint > struct ixht
     temp.key = key;
     temp.value = typename blueprint::value_type();
     entry *res;
-    bool found = ixht_perform_entry( &table, &temp, IXHT_INSERT, &res );
+    bool found = iht_perform_entry( &table, &temp, IHT_INSERT, &res );
     if( !found )
       *res = temp;
   }
@@ -81,22 +70,22 @@ template< typename blueprint > struct ixht
     entry temp;
     temp.key = key;
     entry *res;
-    ixht_perform_entry( &table, &temp, IXHT_DELETE, &res );
+    iht_perform_entry( &table, &temp, IHT_DELETE, &res );
   }
 
   static itr_type begin_itr( table_type &table )
   {
-    return ixht_iter_begin_entry( &table );
+    return iht_iter_begin_entry( &table );
   }
 
   static bool is_itr_valid( table_type &table, itr_type &itr )
   {
-    return ixht_iter_valid_entry( &itr );
+    return iht_iter_valid_entry( &itr );
   }
 
   static void increment_itr( table_type &table, itr_type &itr )
   {
-    ixht_iter_next_entry( &table, &itr );
+    iht_iter_next_entry( &table, &itr );
   }
 
   static const typename blueprint::key_type &get_key_from_itr( table_type &table, itr_type &itr )
@@ -111,13 +100,13 @@ template< typename blueprint > struct ixht
 
   static void destroy_table( table_type &table )
   {
-    ixht_destroy_entry( &table );
+    iht_destroy_entry( &table );
   }
 };
 
-template<> struct ixht< void >
+template<> struct ihtab_c< void >
 {
-  static constexpr const char *label = "ixht";
-  static constexpr const char *color = "rgb( 150, 80, 200 )";
+  static constexpr const char *label = "ihtab_c";
+  static constexpr const char *color = "rgb( 30, 100, 180 )";
   static constexpr bool tombstone_like_mechanism = true;
 };

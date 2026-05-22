@@ -1,8 +1,8 @@
-// c_cpp_hash_tables_benchmark/shims/ixhtab_cpp/shim.h
+// c_cpp_hash_tables_benchmark/shims/ihtab/shim.h
 
-#include "ixhtab.hpp"
+#include "ihtab.hpp"
 
-template< typename blueprint > struct ixhtab_wrap
+template< typename blueprint > struct ihtab_cpp
 {
   struct entry
   {
@@ -12,7 +12,7 @@ template< typename blueprint > struct ixhtab_wrap
 
   struct hash
   {
-    ixhtab_hash_t operator()( const entry &e ) const
+    iht::hash_t operator()( const entry &e ) const
     {
       return blueprint::hash_key( e.key );
     }
@@ -26,9 +26,9 @@ template< typename blueprint > struct ixhtab_wrap
     }
   };
 
-  using tab = ixhtab< entry, hash, eq >;
+  using tab = iht::ihtab< entry, hash, eq >;
   using table_type = tab;
-  using itr_type = typename tab::ixhtab_iter;
+  using itr_type = typename tab::iter;
 
   static table_type create_table()
   {
@@ -40,13 +40,12 @@ template< typename blueprint > struct ixhtab_wrap
     entry temp;
     temp.key = key;
     entry *res;
-    bool found = table.perform( temp, IXHTAB_FIND, &res );
+    bool found = table.perform( temp, iht::FIND, &res );
 
     // Create iterator directly from result - no search needed
     itr_type it;
     it.ptr = found ? res : nullptr;
-    it.bin_idx = 0; // Not used for find results
-    it.el_idx = 0;  // Not used for find results
+    it.el_idx = 0; // Not used for find results
     return it;
   }
 
@@ -56,7 +55,7 @@ template< typename blueprint > struct ixhtab_wrap
     temp.key = key;
     temp.value = typename blueprint::value_type();
     entry *res;
-    bool found = table.perform( temp, IXHTAB_INSERT, &res );
+    bool found = table.perform( temp, iht::INSERT, &res );
     if( !found )
       *res = temp;
   }
@@ -66,7 +65,7 @@ template< typename blueprint > struct ixhtab_wrap
     entry temp;
     temp.key = key;
     entry *res;
-    table.perform( temp, IXHTAB_DELETE, &res );
+    table.perform( temp, iht::DELETE, &res );
   }
 
   static itr_type begin_itr( table_type &table )
@@ -100,9 +99,9 @@ template< typename blueprint > struct ixhtab_wrap
   }
 };
 
-template<> struct ixhtab_wrap< void >
+template<> struct ihtab_cpp< void >
 {
-  static constexpr const char *label = "ixhtab";
-  static constexpr const char *color = "rgb( 150, 80, 200 )";
+  static constexpr const char *label = "ihtab_cpp";
+  static constexpr const char *color = "rgb( 30, 100, 180 )";
   static constexpr bool tombstone_like_mechanism = true;
 };
