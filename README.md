@@ -1,6 +1,6 @@
 # Hash Table Benchmarks
 
-This is a copy of https://jacksonallan.github.io/c_cpp_hash_tables_benchmark/ with additional features and benchmarks.
+This is a copy of https://github.com/JacksonAllan/c_cpp_hash_tables_benchmark with additional features and benchmarks.
 
 This repository contains a comparative, extendible benchmarking suite for C and C++ hash-table libraries.
 
@@ -96,7 +96,7 @@ grep "^#define SHIM_" config.h
 ```
 
 ### Adding New Tables and Blueprints
-For detailed instructions on extending the benchmark suite, see the original repository: https://jacksonallan.github.io/c_cpp_hash_tables_benchmark/
+For detailed instructions on extending the benchmark suite, see the original repository: https://github.com/JacksonAllan/c_cpp_hash_tables_benchmark.
 
 ## Built-in Hash Tables
 
