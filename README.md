@@ -14,6 +14,8 @@ The benchmarks measure the speed of inserting keys, replacing keys, looking up e
 - **🎨 Improved visualization**: Enhanced styling and presentation of heat tables and charts
 - **⚡ Selective benchmarking**: Run specific hash tables via command-line arguments
 
+> **Note**: These benchmark suite enhancements were developed with [Claude Code](https://claude.ai/code) assistance. The ihtab/ixhtab hash table implementations themselves are original non-AI work.
+
 ## Quick Start
 
 ```bash
