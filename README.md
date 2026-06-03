@@ -78,9 +78,9 @@ The HTML file contains:
 
 Benchmark results across different architectures:
 
-- **[AMD 9900X](AMD.html)** - Zen 5 architecture results
-- **[Intel 270K+](270K.html)** - Arrow Lake hybrid architecture
-- **[Apple M4](M4.html)** - Apple Silicon results
+- **[AMD 9900X](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/AMD.html)** - Zen 5 architecture results
+- **[Intel 270K+](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/270K.html)** - Arrow Lake hybrid architecture
+- **[Apple M4](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/M4.html)** - Apple Silicon results
 
 ## Configuration
 
