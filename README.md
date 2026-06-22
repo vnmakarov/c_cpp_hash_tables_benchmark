@@ -45,7 +45,7 @@ g++ -I. -std=c++20 -static -O3 -DNDEBUG -Wall -Wpedantic main.cpp
    taskset -c 0-7 ./a.out
 
    # Check core topology first
-   lscpu
+   lscpu -e
    ```
 
 ### Basic Usage
