@@ -3,11 +3,11 @@
 // Distributed under the MIT License (see the accompanying LICENSE file).
 
 // The total number of unique keys to include in the benchmarks.
-#define KEY_COUNT 200000
+#define KEY_COUNT 20000000
 
 // The frequency at which to measure and record times.
 // This must be a factor of KEY_COUNT.
-#define KEY_COUNT_MEASUREMENT_INTERVAL 500
+#define KEY_COUNT_MEASUREMENT_INTERVAL 50000
 
 // The number of times to repeat the benchmarks.
 #define RUN_COUNT 14
