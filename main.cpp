@@ -3893,11 +3893,13 @@ size_t &memory_result()
 template< template< typename > typename shim, typename blueprint >
 void measure_memory()
 {
-  auto before = mallinfo2().uordblks;
+  auto mi_before = mallinfo2();
+  auto before = mi_before.uordblks + mi_before.hblkhd;
   auto table = shim< blueprint >::create_table();
   for( size_t i = 0; i < KEY_COUNT; ++i )
     shim< blueprint >::insert( table, shuffled_unique_key< blueprint >( i ) );
-  auto after = mallinfo2().uordblks;
+  auto mi_after = mallinfo2();
+  auto after = mi_after.uordblks + mi_after.hblkhd;
   shim< blueprint >::destroy_table( table );
   memory_result< shim, blueprint >() = after - before;
 }
