@@ -16,9 +16,9 @@ typedef unsigned long iht_size_t;
 typedef size_t iht_hash_t;
 
 #define IHT_GROUP_SIZE 8
-#define IHT_EMPTY_H7 0x80
-#define IHT_DELETED_H7 0xfe
-#define IHT_INDEX_DELETED (~(iht_ind_t) 0)
+#define IHT_GROUP_BYTES (IHT_GROUP_SIZE * (1 + sizeof (iht_ind_t)))
+#define IHT_EMPTY_H7 0xc0
+#define IHT_DELETED_H7 0x80
 #define IHT_LF_FACTOR 1
 #define IHT_LF_DIVISOR 2
 
@@ -41,8 +41,7 @@ static IHT_FORCE_INLINE uint64_t iht_match_mask (iht_group_t g, unsigned char h7
   return (uint64_t) _mm_movemask_epi8 (_mm_cmpeq_epi8 (g, h7_vec)) & 0xff;
 }
 static IHT_FORCE_INLINE uint64_t iht_match_empty (iht_group_t g) {
-  __m128i mask = _mm_set1_epi8 ((char) 0x80);
-  return (uint64_t) _mm_movemask_epi8 (_mm_and_si128 (g, mask)) & 0xff;
+  return (uint64_t) _mm_movemask_epi8 (_mm_and_si128 (g, _mm_slli_epi64 (g, 1))) & 0xff;
 }
 
 #elif !defined(IHT_USE_SWAR) && (defined(__aarch64__) || defined(_M_ARM64))
@@ -74,7 +73,7 @@ static IHT_FORCE_INLINE uint64_t iht_match_mask (iht_group_t g, unsigned char h7
   uint64_t cmp = g ^ (IHT_SWAR_LSB * h7_val);
   return (cmp - IHT_SWAR_LSB) & ~cmp & IHT_SWAR_MSB;
 }
-static IHT_FORCE_INLINE uint64_t iht_match_empty (iht_group_t g) { return g & IHT_SWAR_MSB; }
+static IHT_FORCE_INLINE uint64_t iht_match_empty (iht_group_t g) { return (g & IHT_SWAR_MSB) & (g << 1); }
 
 #endif
 
@@ -86,8 +85,7 @@ static IHT_FORCE_INLINE uint64_t iht_match_empty (iht_group_t g) { return g & IH
     iht_size_t els_bound;                                                                                   \
     El *els;                                                                                                \
     char *deleted;                                                                                          \
-    unsigned char *h7;                                                                                      \
-    iht_ind_t *indexes;                                                                                     \
+    unsigned char *groups;                                                                                  \
     iht_size_t groups_mask;                                                                                 \
   };                                                                                                        \
                                                                                                             \
@@ -104,8 +102,7 @@ static IHT_FORCE_INLINE uint64_t iht_match_empty (iht_group_t g) { return g & IH
   static IHT_FORCE_INLINE void iht_destroy_bin_##El (struct hbin_iht_##El *b) {                             \
     free (b->els);                                                                                          \
     free (b->deleted);                                                                                      \
-    free (b->h7);                                                                                           \
-    free (b->indexes);                                                                                      \
+    free (b->groups);                                                                                       \
   }                                                                                                         \
                                                                                                             \
   static IHT_FORCE_INLINE bool iht_do_1_##El (struct iht_##El *t, struct hbin_iht_##El *b, El *el,          \
@@ -113,25 +110,22 @@ static IHT_FORCE_INLINE uint64_t iht_match_empty (iht_group_t g) { return g & IH
     iht_hash_t hash = Hash (*el);                                                                           \
     unsigned char h7_val = (hash >> (sizeof (size_t) * 8 - 7)) & 0x7f;                                      \
     iht_size_t group_ind = (hash / IHT_GROUP_SIZE) & b->groups_mask;                                        \
-    iht_size_t first_deleted_slot = ~(iht_size_t) 0;                                                        \
     for (;;) {                                                                                              \
-      unsigned char *group_h7 = b->h7 + group_ind * IHT_GROUP_SIZE;                                         \
-      iht_group_t group = iht_group_load (group_h7);                                                        \
+      unsigned char *group_base = b->groups + group_ind * IHT_GROUP_BYTES;                                  \
+      iht_group_t group = iht_group_load (group_base);                                                      \
+      iht_ind_t *group_indexes = (iht_ind_t *) (group_base + IHT_GROUP_SIZE);                               \
       uint64_t mmask = iht_match_mask (group, h7_val);                                                      \
       while (mmask) {                                                                                       \
         unsigned int bit = __builtin_ctzll (mmask);                                                         \
         if (IHT_MASK_SCALE) bit /= 8;                                                                       \
-        iht_size_t slot = group_ind * IHT_GROUP_SIZE + bit;                                                 \
-        iht_ind_t el_ind = b->indexes[slot];                                                                \
-        if (el_ind == IHT_INDEX_DELETED) {                                                                  \
-          if (first_deleted_slot == ~(iht_size_t) 0) first_deleted_slot = slot;                             \
-        } else if (Eq (b->els[el_ind], *el)) {                                                              \
+        iht_ind_t el_ind = group_indexes[bit];                                                              \
+        if (Eq (b->els[el_ind], *el)) {                                                                     \
           if (action != IHT_DELETE) {                                                                       \
             *res = &b->els[el_ind];                                                                         \
           } else {                                                                                          \
             t->els_num--;                                                                                   \
             b->deleted[el_ind / 8] |= 1 << (el_ind % 8);                                                    \
-            b->indexes[slot] = IHT_INDEX_DELETED;                                                           \
+            group_base[bit] = IHT_DELETED_H7;                                                               \
           }                                                                                                 \
           return true;                                                                                      \
         }                                                                                                   \
@@ -141,16 +135,10 @@ static IHT_FORCE_INLINE uint64_t iht_match_empty (iht_group_t g) { return g & IH
       if (emask) {                                                                                          \
         if (action >= IHT_INSERT) {                                                                         \
           t->els_num++;                                                                                     \
-          iht_size_t slot;                                                                                  \
-          if (first_deleted_slot != ~(iht_size_t) 0) {                                                      \
-            slot = first_deleted_slot;                                                                      \
-          } else {                                                                                          \
-            unsigned int bit = __builtin_ctzll (emask);                                                     \
-            if (IHT_MASK_SCALE) bit /= 8;                                                                   \
-            slot = group_ind * IHT_GROUP_SIZE + bit;                                                        \
-          }                                                                                                 \
-          b->h7[slot] = h7_val;                                                                             \
-          b->indexes[slot] = (iht_ind_t) b->els_bound;                                                      \
+          unsigned int bit = __builtin_ctzll (emask);                                                       \
+          if (IHT_MASK_SCALE) bit /= 8;                                                                     \
+          group_base[bit] = h7_val;                                                                         \
+          group_indexes[bit] = (iht_ind_t) b->els_bound;                                                    \
           *res = &b->els[b->els_bound];                                                                     \
           b->els_bound++;                                                                                   \
         }                                                                                                   \
@@ -171,10 +159,11 @@ static IHT_FORCE_INLINE uint64_t iht_match_empty (iht_group_t g) { return g & IH
     rb.els = (El *) malloc (els_size * sizeof (El));                                                        \
     iht_size_t del_bytes = (els_size + 7) / 8;                                                              \
     rb.deleted = (char *) calloc (del_bytes, 1);                                                            \
-    rb.h7 = (unsigned char *) aligned_alloc (IHT_GROUP_SIZE, indexes_size);                                 \
-    memset (rb.h7, IHT_EMPTY_H7, indexes_size);                                                             \
-    rb.indexes = (iht_ind_t *) malloc (indexes_size * sizeof (iht_ind_t));                                  \
-    rb.groups_mask = indexes_size / IHT_GROUP_SIZE - 1;                                                     \
+    iht_size_t num_groups = indexes_size / IHT_GROUP_SIZE;                                                  \
+    rb.groups = (unsigned char *) aligned_alloc (IHT_GROUP_SIZE, num_groups * IHT_GROUP_BYTES);             \
+    for (iht_size_t i = 0; i < num_groups; i++)                                                             \
+      memset (rb.groups + i * IHT_GROUP_BYTES, IHT_EMPTY_H7, IHT_GROUP_SIZE);                               \
+    rb.groups_mask = num_groups - 1;                                                                        \
     rb.els_bound = 0;                                                                                       \
     iht_size_t bound = t->bin.els_bound;                                                                    \
     iht_size_t saved = t->els_num;                                                                          \
@@ -198,10 +187,11 @@ static IHT_FORCE_INLINE uint64_t iht_match_empty (iht_group_t g) { return g & IH
     t->bin.els = (El *) malloc (els_size * sizeof (El));                                                    \
     iht_size_t del_bytes = (els_size + 7) / 8;                                                              \
     t->bin.deleted = (char *) calloc (del_bytes, 1);                                                        \
-    t->bin.h7 = (unsigned char *) aligned_alloc (IHT_GROUP_SIZE, indexes_size);                             \
-    memset (t->bin.h7, IHT_EMPTY_H7, indexes_size);                                                         \
-    t->bin.indexes = (iht_ind_t *) malloc (indexes_size * sizeof (iht_ind_t));                              \
-    t->bin.groups_mask = indexes_size / IHT_GROUP_SIZE - 1;                                                 \
+    iht_size_t num_groups = indexes_size / IHT_GROUP_SIZE;                                                  \
+    t->bin.groups = (unsigned char *) aligned_alloc (IHT_GROUP_SIZE, num_groups * IHT_GROUP_BYTES);         \
+    for (iht_size_t i = 0; i < num_groups; i++)                                                             \
+      memset (t->bin.groups + i * IHT_GROUP_BYTES, IHT_EMPTY_H7, IHT_GROUP_SIZE);                           \
+    t->bin.groups_mask = num_groups - 1;                                                                    \
   }                                                                                                         \
                                                                                                             \
   static IHT_FORCE_INLINE void iht_destroy_##El (struct iht_##El *t) { iht_destroy_bin_##El (&t->bin); }    \

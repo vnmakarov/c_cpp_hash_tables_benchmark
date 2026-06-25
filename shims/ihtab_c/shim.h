@@ -10,12 +10,12 @@ template< typename blueprint > struct ihtab_c
     typename blueprint::value_type value;
   };
 
-  static iht_hash_t hash_fn( const entry e )
+  static iht_hash_t hash_fn( const entry &e )
   {
     return blueprint::hash_key( e.key );
   }
 
-  static bool eq_fn( const entry e1, const entry e2 )
+  static bool eq_fn( const entry &e1, const entry &e2 )
   {
     return blueprint::cmpr_keys( e1.key, e2.key );
   }

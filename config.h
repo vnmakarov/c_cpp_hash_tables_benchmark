@@ -78,5 +78,7 @@
 #define SHIM_15 verstable
 #define SHIM_16 ixhtab_c
 #define SHIM_17 ixhtab_cpp
-#define SHIM_18 ihtab_c
-#define SHIM_19 ihtab_cpp
+#define SHIM_18 ihtab_c_v0
+#define SHIM_19 ihtab_cpp_v0
+#define SHIM_20 ihtab_c
+#define SHIM_21 ihtab_cpp
