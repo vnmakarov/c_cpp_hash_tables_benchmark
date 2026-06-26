@@ -78,13 +78,15 @@ The HTML file contains:
 
 Benchmark results across different architectures (200K keys, 500 key interval):
 
-- **[AMD 9900X](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/AMD.html)** - Zen 5 architecture results
-- **[Intel 270K+](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/270K.html)** - Arrow Lake hybrid architecture
-- **[Apple M4](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/M4.html)** - Apple Silicon results
+- **[AMD 9900X](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/AMD-200K-25Jun.html)** - Zen 5 architecture results
+- **[Intel 270K+](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/270K-200K-25Jun.html)** - Arrow Lake hybrid architecture
+- **[Apple M4](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/M4-200K-25Jun.html)** - Apple Silicon results
 
-It takes more 3 hours to run benchmarks for very large tables (20M keys, 50K key interval).  Here are the benchmark results for one machine:
+It takes more 3 hours to run benchmarks for very large tables (20M keys, 50K key interval).  Here are the benchmark results for the same machines:
 
-**[AMD 9900X](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/AMD-20M.html)**
+- **[AMD 9900X](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/AMD-20M-25Jun.html)** - Zen 5 architecture results
+- **[Intel 270K+](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/270K-20M-25Jun.html)** - Arrow Lake hybrid architecture
+- **[Apple M4](https://htmlpreview.github.io/?https://github.com/vnmakarov/c_cpp_hash_tables_benchmark/blob/main/M4-20M-25Jun.html)** - Apple Silicon results
 
 ## Configuration
 
