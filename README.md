@@ -111,6 +111,7 @@ For detailed instructions on extending the benchmark suite, see the original rep
 ### C++ Tables
 
 * **[ihtab](https://github.com/vnmakarov/ihtab)** - New high-performance hash table (C++ interface)
+* **[ihtab-v0](https://github.com/vnmakarov/ihtab)** - Initial version of ihtab (C++ interface)
 * **[ixhtab](https://github.com/vnmakarov/ihtab)** - New extensible hash table (C++ interface)
 * [absl::flat_hash_map](https://github.com/abseil/abseil-cpp) v20240116.2
 * [ankerl::unordered_dense](https://github.com/martinus/unordered_dense) v4.1.2
@@ -123,6 +124,7 @@ For detailed instructions on extending the benchmark suite, see the original rep
 ### C Tables
 
 * **[ihtab](https://github.com/vnmakarov/ihtab)** - New high-performance hash table (C interface)
+* **[ihtab-v0](https://github.com/vnmakarov/ihtab)** - Initial version of ihtab (C interface)
 * **[ixhtab](https://github.com/vnmakarov/ihtab)** - New extensible hash table (C interface)
 * cc_map from [CC](https://github.com/JacksonAllan/CC) v1.1.1
 * khash from [klib](https://github.com/attractivechaos/klib) v0.2.8
